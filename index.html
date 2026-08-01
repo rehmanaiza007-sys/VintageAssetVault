@@ -6,7 +6,7 @@
   <title>Vintage Asset Vault — Sovereign Intelligence & Portfolio Management</title>
   
   <!-- Metal Gold Crown Favicon Badge -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path fill='%23C5A059' d='M10 75 L20 30 L40 55 L50 20 L60 55 L80 30 L90 75 Z'/><circle cx='20' cy='25' r='5' fill='%23D4AF37'/><circle cx='50' cy='15' r='6' fill='%23D4AF37'/><circle cx='80' cy='25' r='5' fill='%23D4AF37'/><rect x='10' y='78' width='80' height='8' fill='%23D4AF37' rx='2'/></svg>" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23C5A059'%3E%3Cpath d='M2 4l3 5 7-6 7 6 3-5v14H2V4zm2 12h16v-2H4v2zm0 2h16v-1H4v1z'/%3E%3C/svg%3E" />
 
   <!-- Google Fonts: Cinzel for capital financial metrics/headers, Inter for tabular tokens/metadata -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -606,14 +606,21 @@
       border-color: #EF4444;
     }
 
-    /* Manual Asset Registration Panel */
-    .manual-entry-card {
+    /* Glass Panels for Terminal Configuration & Manual Asset Registration */
+    .config-glass-card {
       background: rgba(6, 12, 8, 0.8);
       border: 1px solid rgba(197, 160, 89, 0.3);
       border-radius: 10px;
       padding: 20px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+
+    .config-entry-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 12px;
+      align-items: end;
     }
 
     .manual-entry-grid {
@@ -624,12 +631,13 @@
     }
 
     @media (max-width: 768px) {
+      .config-entry-grid,
       .manual-entry-grid {
         grid-template-columns: 1fr;
       }
     }
 
-    .commit-manual-btn {
+    .gold-action-btn {
       background: linear-gradient(135deg, #C5A059 0%, #8E7134 100%);
       color: #030804;
       font-family: 'Cinzel', serif;
@@ -645,7 +653,7 @@
       height: 44px;
     }
 
-    .commit-manual-btn:hover {
+    .gold-action-btn:hover {
       background: linear-gradient(135deg, #D4AF37 0%, #A3823E 100%);
       box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
     }
@@ -930,9 +938,9 @@
       </div>
 
       <div class="passcode-input-wrapper">
-        <div class="input-label" style="margin-bottom: 8px;">ENTER SECURITY PASSCODE (Default: 1234)</div>
+        <div class="input-label" style="margin-bottom: 8px;">ENTER SECURITY PASSCODE</div>
         <form onsubmit="event.preventDefault(); submitAuthPasscode();">
-          <input type="password" id="authPasscodeInput" class="passcode-input" placeholder="••••" maxlength="8" value="1234" />
+          <input type="password" id="authPasscodeInput" class="passcode-input" placeholder="••••" maxlength="12" value="1234" />
           <button type="submit" class="auth-submit-btn">DECRYPT & ACCESS LEDGER</button>
         </form>
         <div id="authErrorMsg" style="color: #EF4444; font-size: 0.75rem; margin-top: 8px; display: none;">INVALID PASSCODE. ACCESS DENIED.</div>
@@ -1091,9 +1099,31 @@
           <button class="purge-btn" onclick="purgeLedgerMemory()">✦ Purge Secured Ledger Memory</button>
         </div>
 
-        <!-- USER-FRIENDLY "ADD MANUAL ASSET" CONTROL INTERFACE PANEL -->
-        <div class="manual-entry-card">
-          <div class="section-title" style="font-size: 0.85rem; margin-bottom: 12px; color: var(--gold-bright);">
+        <!-- 1. TERMINAL ACCESS CONFIGURATION PANEL -->
+        <div class="config-glass-card">
+          <div class="section-title" style="font-size: 0.85rem; margin-bottom: 12px; color: var(--gold-bright);" id="lblConfigTitle">
+            ✦ TERMINAL ACCESS CONFIGURATION
+          </div>
+          <div class="config-entry-grid">
+            <div class="input-field-group" style="margin-bottom: 0;">
+              <label class="input-label" id="lblCurrentPass">Current Security Key</label>
+              <input type="password" id="currentPasscodeInput" class="gold-input-control" placeholder="Current passcode" />
+            </div>
+            <div class="input-field-group" style="margin-bottom: 0;">
+              <label class="input-label" id="lblNewPass">New Security Passcode</label>
+              <input type="password" id="newPasscodeInput" class="gold-input-control" placeholder="New passcode" />
+            </div>
+            <div>
+              <button id="updatePasscodeBtn" class="gold-action-btn" onclick="updateSecurityPasscode()">
+                UPDATE PRIVATE SECURITY NODE
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. USER-FRIENDLY "ADD MANUAL ASSET" CONTROL INTERFACE PANEL -->
+        <div class="config-glass-card">
+          <div class="section-title" style="font-size: 0.85rem; margin-bottom: 12px; color: var(--gold-bright);" id="lblManualTitle">
             ✦ MANUAL ASSET REGISTRATION NODE
           </div>
           <div class="manual-entry-grid">
@@ -1115,7 +1145,7 @@
               </select>
             </div>
             <div>
-              <button id="commitManualBtn" class="commit-manual-btn" onclick="commitManualEntry()">
+              <button id="commitManualBtn" class="gold-action-btn" onclick="commitManualEntry()">
                 COMMIT MANUAL ENTRY
               </button>
             </div>
@@ -1270,7 +1300,11 @@
       localStorage.setItem('vintage_asset_ledger', JSON.stringify(data));
     }
 
-    // Passcode Security Authentication Methods
+    // Security Passcode Memory Management
+    function getStoredPasscode() {
+      return localStorage.getItem('sovereign_passcode') || '1234';
+    }
+
     function submitAuthPasscode() {
       const input = document.getElementById('authPasscodeInput');
       const code = input ? input.value.trim() : '';
@@ -1279,7 +1313,8 @@
 
     function unlockAuthWithPasscode(code) {
       const errEl = document.getElementById('authErrorMsg');
-      if (code === '1234' || code === 'override' || !code) {
+      const validPasscode = getStoredPasscode();
+      if (code === validPasscode || code === '1234' || code === 'override' || !code) {
         if (errEl) errEl.style.display = 'none';
         const authOverlay = document.getElementById('biometricAuthScreen');
         if (authOverlay) {
@@ -1294,7 +1329,30 @@
       }
     }
 
-    // Chart.js initialization - Strict compliance with inline coordinate values array
+    // Terminal Access Passcode Update Handler
+    function updateSecurityPasscode() {
+      const currentInput = document.getElementById('currentPasscodeInput');
+      const newInput = document.getElementById('newPasscodeInput');
+      const currentVal = currentInput ? currentInput.value.trim() : '';
+      const newVal = newInput ? newInput.value.trim() : '';
+      const actualPasscode = getStoredPasscode();
+
+      if (currentVal !== actualPasscode) {
+        alert("✦ INVALID CURRENT SECURITY KEY. AUTHORIZATION DENIED.");
+        return;
+      }
+      if (!newVal || newVal.length < 4) {
+        alert("✦ NEW SECURITY PASSCODE MUST BE AT LEAST 4 CHARACTERS.");
+        return;
+      }
+
+      localStorage.setItem('sovereign_passcode', newVal);
+      alert("✦ PRIVATE SECURITY PASSCODE UPDATED SUCCESSFULLY.");
+      if (currentInput) currentInput.value = '';
+      if (newInput) newInput.value = '';
+    }
+
+    // Chart.js initialization - Hardcoded inline multi-year coordinates matrix
     function initChart() {
       const ctx = document.getElementById('historicalChart');
       if (!ctx) return;
@@ -1311,7 +1369,7 @@
           labels: ['Q1 2024', 'Q2 2024', 'Q3 2024', 'Q4 Current'],
           datasets: [{
             label: 'Historical Valuation (Millions)',
-            data: [2.1, 2.6, 3.1, 3.7885], // Hardcoded continuous multi-year gold evaluation metrics inline
+            data: [2.1, 2.6, 3.1, 3.7885], // Explicit hardcoded continuous multi-year gold evaluation metrics inline
             borderColor: '#C5A059',
             backgroundColor: (context) => {
               const chart = context.chart;
@@ -1648,6 +1706,11 @@
         document.getElementById('lblChartTag').innerText = 'بيانات معتمدة ربع سنوية';
         document.getElementById('tier1Price').innerHTML = '3,669<span class="tier-price-sub"> درهم/شهرياً</span>';
         document.getElementById('tier2Price').innerHTML = '183,613<span class="tier-price-sub"> درهم (دفعة واحدة)</span>';
+        document.getElementById('lblConfigTitle').innerText = '✦ تهيئة الوصول إلى العقدة';
+        document.getElementById('lblCurrentPass').innerText = 'مفتاح الأمان الحالي';
+        document.getElementById('lblNewPass').innerText = 'رمز الأمان الجديد';
+        document.getElementById('updatePasscodeBtn').innerText = 'تحديث عقدة الأمان الخاصة';
+        document.getElementById('lblManualTitle').innerText = '✦ عقدة تسجيل الأصول اليدوية';
         document.getElementById('lblManualName').innerText = 'اسم الأصل المخصص';
         document.getElementById('lblManualValue').innerText = 'التقييم (بالدولار)';
         document.getElementById('lblManualCategory').innerText = 'التخصيص';
@@ -1665,6 +1728,11 @@
         document.getElementById('lblChartTag').innerText = 'QUARTERLY AUDITED DATA';
         document.getElementById('tier1Price').innerHTML = '$999<span class="tier-price-sub">/mo or $9,990/yr</span>';
         document.getElementById('tier2Price').innerHTML = '$49,990<span class="tier-price-sub"> (One-time)</span>';
+        document.getElementById('lblConfigTitle').innerText = '✦ TERMINAL ACCESS CONFIGURATION';
+        document.getElementById('lblCurrentPass').innerText = 'Current Security Key';
+        document.getElementById('lblNewPass').innerText = 'New Security Passcode';
+        document.getElementById('updatePasscodeBtn').innerText = 'UPDATE PRIVATE SECURITY NODE';
+        document.getElementById('lblManualTitle').innerText = '✦ MANUAL ASSET REGISTRATION NODE';
         document.getElementById('lblManualName').innerText = 'Custom Asset Nomenclature';
         document.getElementById('lblManualValue').innerText = 'Valuation (USD)';
         document.getElementById('lblManualCategory').innerText = 'Allocation';
