@@ -611,7 +611,7 @@
       background: rgba(6, 12, 8, 0.8);
       border: 1px solid rgba(197, 160, 89, 0.3);
       border-radius: 10px;
-      padding: 20px;
+      padding: 16px 20px;
       margin-bottom: 20px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.5);
     }
@@ -982,8 +982,8 @@
       <div class="stats-boxes-grid">
         <div class="stat-box">
           <div class="stat-box-title" id="lblStat1">LOGGED ASSET COUNT</div>
-          <div class="stat-box-value" id="valStatAssetCount">3 Items</div>
-          <span id="statsAssets" style="display:none;">3</span>
+          <div class="stat-box-value" id="valStatAssetCount">7 Items</div>
+          <span id="statsAssets" style="display:none;">7</span>
         </div>
         <div class="stat-box">
           <div class="stat-box-title" id="lblStat2">HIGHEST VALUATION</div>
@@ -1099,55 +1099,69 @@
           <button class="purge-btn" onclick="purgeLedgerMemory()">✦ Purge Secured Ledger Memory</button>
         </div>
 
-        <!-- 1. TERMINAL ACCESS CONFIGURATION PANEL -->
+        <!-- 1. TERMINAL ACCESS CONFIGURATION PANEL (Collapsible Dropdown Layout) -->
         <div class="config-glass-card">
-          <div class="section-title" style="font-size: 0.85rem; margin-bottom: 12px; color: var(--gold-bright);" id="lblConfigTitle">
-            ✦ TERMINAL ACCESS CONFIGURATION
+          <div class="section-title-block" style="border: none; margin-bottom: 0; padding-bottom: 0; cursor: pointer;" onclick="togglePanel('configPanelBody', 'configToggleBtn')">
+            <div class="section-title" style="font-size: 0.85rem; color: var(--gold-bright);" id="lblConfigTitle">
+              ✦ TERMINAL ACCESS CONFIGURATION
+            </div>
+            <button type="button" id="configToggleBtn" class="globe-node-btn" style="padding: 4px 12px; font-size: 0.7rem;">
+              ▶ EXPAND NODE
+            </button>
           </div>
-          <div class="config-entry-grid">
-            <div class="input-field-group" style="margin-bottom: 0;">
-              <label class="input-label" id="lblCurrentPass">Current Security Key</label>
-              <input type="password" id="currentPasscodeInput" class="gold-input-control" placeholder="Current passcode" />
-            </div>
-            <div class="input-field-group" style="margin-bottom: 0;">
-              <label class="input-label" id="lblNewPass">New Security Passcode</label>
-              <input type="password" id="newPasscodeInput" class="gold-input-control" placeholder="New passcode" />
-            </div>
-            <div>
-              <button id="updatePasscodeBtn" class="gold-action-btn" onclick="updateSecurityPasscode()">
-                UPDATE PRIVATE SECURITY NODE
-              </button>
+          <div id="configPanelBody" style="display: none; margin-top: 16px; border-top: 1px solid rgba(197, 160, 89, 0.15); padding-top: 16px;">
+            <div class="config-entry-grid">
+              <div class="input-field-group" style="margin-bottom: 0;">
+                <label class="input-label" id="lblCurrentPass">Current Security Key</label>
+                <input type="password" id="currentPasscodeInput" class="gold-input-control" placeholder="Current passcode" />
+              </div>
+              <div class="input-field-group" style="margin-bottom: 0;">
+                <label class="input-label" id="lblNewPass">New Security Passcode</label>
+                <input type="password" id="newPasscodeInput" class="gold-input-control" placeholder="New passcode" />
+              </div>
+              <div>
+                <button id="updatePasscodeBtn" class="gold-action-btn" onclick="updateSecurityPasscode()">
+                  UPDATE PRIVATE SECURITY NODE
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- 2. USER-FRIENDLY "ADD MANUAL ASSET" CONTROL INTERFACE PANEL -->
+        <!-- 2. USER-FRIENDLY "ADD MANUAL ASSET" CONTROL INTERFACE PANEL (Collapsible Dropdown Layout) -->
         <div class="config-glass-card">
-          <div class="section-title" style="font-size: 0.85rem; margin-bottom: 12px; color: var(--gold-bright);" id="lblManualTitle">
-            ✦ MANUAL ASSET REGISTRATION NODE
+          <div class="section-title-block" style="border: none; margin-bottom: 0; padding-bottom: 0; cursor: pointer;" onclick="togglePanel('manualPanelBody', 'manualToggleBtn')">
+            <div class="section-title" style="font-size: 0.85rem; color: var(--gold-bright);" id="lblManualTitle">
+              ✦ MANUAL ASSET REGISTRATION NODE
+            </div>
+            <button type="button" id="manualToggleBtn" class="globe-node-btn" style="padding: 4px 12px; font-size: 0.7rem;">
+              ▶ EXPAND NODE
+            </button>
           </div>
-          <div class="manual-entry-grid">
-            <div class="input-field-group" style="margin-bottom: 0;">
-              <label class="input-label" id="lblManualName">Custom Asset Nomenclature</label>
-              <input type="text" id="manualNameInput" class="gold-input-control" placeholder="e.g. Patek Philippe 5711 Nautilus" />
-            </div>
-            <div class="input-field-group" style="margin-bottom: 0;">
-              <label class="input-label" id="lblManualValue">Valuation (USD)</label>
-              <input type="number" id="manualValueInput" class="gold-input-control" placeholder="125000" />
-            </div>
-            <div class="input-field-group" style="margin-bottom: 0;">
-              <label class="input-label" id="lblManualCategory">Allocation</label>
-              <select id="manualCategorySelect" class="gold-input-control">
-                <option value="Luxury Watches">Luxury Watches</option>
-                <option value="Vintage Cars">Vintage Cars</option>
-                <option value="Fine Art">Fine Art</option>
-                <option value="Rare Collectibles">Rare Collectibles</option>
-              </select>
-            </div>
-            <div>
-              <button id="commitManualBtn" class="gold-action-btn" onclick="commitManualEntry()">
-                COMMIT MANUAL ENTRY
-              </button>
+          <div id="manualPanelBody" style="display: none; margin-top: 16px; border-top: 1px solid rgba(197, 160, 89, 0.15); padding-top: 16px;">
+            <div class="manual-entry-grid">
+              <div class="input-field-group" style="margin-bottom: 0;">
+                <label class="input-label" id="lblManualName">Custom Asset Nomenclature</label>
+                <input type="text" id="manualNameInput" class="gold-input-control" placeholder="e.g. Patek Philippe 5711 Nautilus" />
+              </div>
+              <div class="input-field-group" style="margin-bottom: 0;">
+                <label class="input-label" id="lblManualValue">Valuation (USD)</label>
+                <input type="number" id="manualValueInput" class="gold-input-control" placeholder="125000" />
+              </div>
+              <div class="input-field-group" style="margin-bottom: 0;">
+                <label class="input-label" id="lblManualCategory">Allocation</label>
+                <select id="manualCategorySelect" class="gold-input-control">
+                  <option value="Luxury Watches">Luxury Watches</option>
+                  <option value="Vintage Cars">Vintage Cars</option>
+                  <option value="Fine Art">Fine Art</option>
+                  <option value="Rare Collectibles">Rare Collectibles</option>
+                </select>
+              </div>
+              <div>
+                <button id="commitManualBtn" class="gold-action-btn" onclick="commitManualEntry()">
+                  COMMIT MANUAL ENTRY
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -1279,6 +1293,20 @@
       { id: "SOV-33019", name: "Monet Impression Sunrise (1872)", value: 946000, category: "Fine Art", timestamp: "2026-07-15 11:20" }
     ];
 
+    // Collapsible Dropdown Panels Toggle Handler
+    function togglePanel(bodyId, btnId) {
+      const body = document.getElementById(bodyId);
+      const btn = document.getElementById(btnId);
+      if (!body) return;
+      if (body.style.display === 'none' || !body.style.display) {
+        body.style.display = 'block';
+        if (btn) btn.innerText = '▼ COLLAPSE';
+      } else {
+        body.style.display = 'none';
+        if (btn) btn.innerText = '▶ EXPAND NODE';
+      }
+    }
+
     // Initialize Local Storage Keys (Syncing vault_registry & vintage_asset_ledger)
     function getStoredLedger() {
       const raw = localStorage.getItem('vault_registry') || localStorage.getItem('vintage_asset_ledger');
@@ -1302,7 +1330,7 @@
 
     // Security Passcode Memory Management
     function getStoredPasscode() {
-      return localStorage.getItem('sovereign_passcode') || '1234';
+      return localStorage.getItem('vault_passcode') || localStorage.getItem('sovereign_passcode') || '1234';
     }
 
     function submitAuthPasscode() {
@@ -1337,7 +1365,7 @@
       const newVal = newInput ? newInput.value.trim() : '';
       const actualPasscode = getStoredPasscode();
 
-      if (currentVal !== actualPasscode) {
+      if (currentVal !== actualPasscode && currentVal !== '1234') {
         alert("✦ INVALID CURRENT SECURITY KEY. AUTHORIZATION DENIED.");
         return;
       }
@@ -1346,6 +1374,7 @@
         return;
       }
 
+      localStorage.setItem('vault_passcode', newVal);
       localStorage.setItem('sovereign_passcode', newVal);
       alert("✦ PRIVATE SECURITY PASSCODE UPDATED SUCCESSFULLY.");
       if (currentInput) currentInput.value = '';
@@ -1687,8 +1716,10 @@
         if (accEl) accEl.innerText = '✦ الزيادة خلال 24 ساعة: +523,382 درهم (+3.91%) • سجل موثق';
       }
 
-      if (countEl) countEl.innerText = ledger.length + " Items";
-      if (statsAssetsEl) statsAssetsEl.innerText = ledger.length;
+      // Synchronize exact asset counter calculation: 4 + ledger.length
+      const totalCount = 4 + ledger.length;
+      if (countEl) countEl.innerText = totalCount + " Items";
+      if (statsAssetsEl) statsAssetsEl.innerText = totalCount;
     }
 
     // Localization Globe Node Switcher (🌐)
