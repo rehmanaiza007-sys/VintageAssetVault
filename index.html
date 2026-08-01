@@ -1342,11 +1342,16 @@
     function unlockAuthWithPasscode(code) {
       const errEl = document.getElementById('authErrorMsg');
       const validPasscode = getStoredPasscode();
-      if (code === validPasscode || code === '1234' || code === 'override' || !code) {
+      const inputCode = code !== undefined && code !== null ? String(code).trim() : '';
+
+      if (inputCode === validPasscode || inputCode === '1234' || inputCode === 'override' || !inputCode) {
         if (errEl) errEl.style.display = 'none';
         const authOverlay = document.getElementById('biometricAuthScreen');
         if (authOverlay) {
           authOverlay.classList.add('authenticated');
+          setTimeout(() => {
+            authOverlay.style.display = 'none';
+          }, 500);
         }
         initChart();
         updatePortfolioMetrics();
@@ -1563,6 +1568,10 @@
     }
 
     // Core Local Storage Persistence Engine (Scanner Lock Button)
+    function loadLocalStorageData() {
+      renderLedgerTable();
+    }
+
     function saveToLocalDatabase() {
       const nameInput = document.getElementById('assetNameInput');
       const valInput = document.getElementById('assetValueInput');
@@ -1587,8 +1596,8 @@
       currentLogs.unshift(newItem);
       saveLedger(currentLogs);
 
+      loadLocalStorageData();
       updatePortfolioMetrics();
-      renderLedgerTable();
       switchTab('vault');
     }
 
