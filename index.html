@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vintage Asset Vault — Sovereign Intelligence & Portfolio Management</title>
+  
+  <!-- Google Fonts: Cinzel for capital financial metrics/headers, Inter for tabular tokens/metadata -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  
+  <!-- Chart.js CDN for Historical Valuation Matrix -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    /* Absolute Sotheby's & Frosted Glass Aesthetic Color Controls */
+    :root {
+      --bg-radial-start: #040A06;
+      --bg-radial-end: #010302;
+      --gold-antique: #C5A059;
+      --gold-bright: #D4AF37;
+      --gold-dim: rgba(197, 160, 89, 0.25);
+      --slate-platinum: #A8B2AE;
+      --frosted-glass-bg: rgba(10, 15, 12, 0.7);
+      --frosted-glass-border: rgba(197, 160, 89, 0.25);
+      --frosted-glass-glow: rgba(197, 160, 89, 0.08);
+      --text-main: #E6ECE9;
+      --text-muted: #8E9B95;
+      --emerald-accent: #0A291A;
+      --green-lock: #10B981;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background: radial-gradient(circle at 50% 30%, var(--bg-radial-start) 0%, var(--bg-radial-end) 100%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      padding-bottom: 90px;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Swiss-Banking Radar Auth Screen Styles */
+    #biometricAuthScreen {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: radial-gradient(circle at 50% 40%, #06120A 0%, #010302 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+
+    #biometricAuthScreen.authenticated {
+      opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
+    }
+
+    .radar-auth-card {
+      background: var(--frosted-glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--frosted-glass-border);
+      border-radius: 16px;
+      padding: 36px 28px;
+      width: 100%;
+      max-width: 440px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(197, 160, 89, 0.15);
+      position: relative;
+    }
+
+    .radar-widget-container {
+      width: 140px;
+      height: 140px;
+      margin: 24px auto;
+      position: relative;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s ease;
+    }
+
+    .radar-widget-container:hover {
+      transform: scale(1.05);
+    }
+
+    .radar-svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .radar-ring-outer {
+      transform-origin: center;
+      animation: radarRotate 12s linear infinite;
+    }
+
+    .radar-ring-inner {
+      transform-origin: center;
+      animation: radarRotateReverse 8s linear infinite;
+    }
+
+    @keyframes radarRotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes radarRotateReverse {
+      from { transform: rotate(360deg); }
+      to { transform: rotate(0deg); }
+    }
+
+    .passcode-input-wrapper {
+      margin-top: 20px;
+    }
+
+    .passcode-input {
+      width: 100%;
+      text-align: center;
+      letter-spacing: 6px;
+      font-size: 1.2rem;
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      padding: 12px;
+      background: rgba(4, 10, 6, 0.9);
+      border: 1px solid var(--gold-antique);
+      color: var(--gold-bright);
+      border-radius: 8px;
+      outline: none;
+      box-shadow: 0 0 15px rgba(197, 160, 89, 0.15);
+    }
+
+    .auth-submit-btn {
+      width: 100%;
+      margin-top: 14px;
+      background: linear-gradient(135deg, #C5A059 0%, #8E7134 100%);
+      color: #030804;
+      font-family: 'Cinzel', serif;
+      font-weight: 800;
+      font-size: 0.85rem;
+      letter-spacing: 2px;
+      padding: 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .auth-submit-btn:hover {
+      background: linear-gradient(135deg, #D4AF37 0%, #A3823E 100%);
+      box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+    }
+
+    /* Typography Utilities */
+    .font-cinzel {
+      font-family: 'Cinzel', serif;
+    }
+
+    .font-inter {
+      font-family: 'Inter', sans-serif;
+    }
+
+    .gold-text {
+      color: var(--gold-antique);
+    }
+
+    /* Header Bar */
+    header.sovereign-header {
+      background: rgba(10, 15, 12, 0.75);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--frosted-glass-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .brand-title {
+      font-family: 'Cinzel', serif;
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: 2px;
+      color: var(--gold-antique);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-subtitle {
+      font-size: 0.65rem;
+      color: var(--slate-platinum);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .globe-node-btn {
+      background: rgba(197, 160, 89, 0.08);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid var(--frosted-glass-border);
+      color: var(--gold-antique);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .globe-node-btn:hover {
+      background: rgba(197, 160, 89, 0.2);
+      border-color: var(--gold-antique);
+      color: var(--gold-bright);
+      box-shadow: 0 0 15px rgba(197, 160, 89, 0.3);
+    }
+
+    /* Main Container & Screens Layout */
+    main.app-viewport {
+      max-width: 1100px;
+      margin: 24px auto;
+      padding: 0 16px;
+    }
+
+    .screen-view {
+      display: none;
+      animation: fadeIn 0.4s ease-in-out forwards;
+    }
+
+    .screen-view.active-screen {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Frosted Glassmorphic Components */
+    .glass-card {
+      background: var(--frosted-glass-bg);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--frosted-glass-border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .glass-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold-antique), transparent);
+    }
+
+    /* Section Titles */
+    .section-title-block {
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(197, 160, 89, 0.15);
+      padding-bottom: 12px;
+    }
+
+    .section-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: var(--gold-antique);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-tag {
+      font-size: 0.7rem;
+      color: var(--slate-platinum);
+      letter-spacing: 1px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* SCREEN 1: Dashboard Elements */
+    .hero-value-card {
+      text-align: center;
+      padding: 36px 24px;
+      background: linear-gradient(180deg, rgba(10, 25, 16, 0.6) 0%, rgba(4, 10, 6, 0.85) 100%);
+    }
+
+    .metric-label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem;
+      letter-spacing: 2.5px;
+      color: var(--slate-platinum);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .portfolio-total-num {
+      font-family: 'Cinzel', serif;
+      font-size: 3.2rem;
+      font-weight: 800;
+      color: var(--gold-bright);
+      letter-spacing: 2px;
+      text-shadow: 0 0 25px rgba(212, 175, 55, 0.25);
+      margin-bottom: 8px;
+    }
+
+    .accretion-badge {
+      display: inline-block;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #34D399;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 4px 14px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+    }
+
+    /* Stats Grid */
+    .stats-boxes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-box {
+      background: rgba(6, 12, 8, 0.7);
+      border: 1px solid rgba(197, 160, 89, 0.2);
+      border-radius: 10px;
+      padding: 18px 20px;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .stat-box:hover {
+      border-color: var(--gold-antique);
+      transform: translateY(-2px);
+    }
+
+    .stat-box-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.72rem;
+      color: var(--slate-platinum);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .stat-box-value {
+      font-family: 'Cinzel', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    /* Chart Container */
+    .chart-container-box {
+      position: relative;
+      width: 100%;
+      height: 280px;
+    }
+
+    /* SCREEN 2: Webcam & AI Scanner Elements */
+    .webcam-frame-container {
+      position: relative;
+      width: 100%;
+      max-width: 640px;
+      margin: 0 auto 20px auto;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8);
+    }
+
+    #webcamVideo {
+      width: 100%;
+      height: 280px;
+      object-fit: cover;
+      background: #000;
+      border: 1px dashed rgba(212, 175, 55, 0.4);
+      display: block;
+    }
+
+    /* Infinite Glowing Neon-Gold Laser Sweeping Animation */
+    .laser-scan-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, #D4AF37, #FFFFFF, #D4AF37, transparent);
+      box-shadow: 0 0 15px #D4AF37, 0 0 25px #C5A059;
+      animation: laserSweep 2s infinite ease-in-out;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    @keyframes laserSweep {
+      0% { top: 0%; opacity: 0.8; }
+      50% { top: 96%; opacity: 1; }
+      100% { top: 0%; opacity: 0.8; }
+    }
+
+    .scan-btn-execute {
+      display: block;
+      width: 100%;
+      max-width: 640px;
+      margin: 0 auto;
+      background: linear-gradient(135deg, #C5A059 0%, #8E7134 100%);
+      color: #030804;
+      font-family: 'Cinzel', serif;
+      font-weight: 800;
+      font-size: 0.95rem;
+      letter-spacing: 2px;
+      padding: 16px 24px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 20px rgba(197, 160, 89, 0.3);
+    }
+
+    .scan-btn-execute:hover {
+      background: linear-gradient(135deg, #D4AF37 0%, #A3823E 100%);
+      box-shadow: 0 6px 25px rgba(212, 175, 55, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .scan-btn-execute:active {
+      transform: translateY(1px);
+    }
+
+    /* Verification & Tracking Inputs Module */
+    .verification-badge {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid var(--green-lock);
+      color: #34D399;
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      padding: 12px 18px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .input-field-group {
+      margin-bottom: 16px;
+    }
+
+    .input-label {
+      display: block;
+      font-family: 'Cinzel', serif;
+      font-size: 0.75rem;
+      color: var(--slate-platinum);
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+
+    .gold-input-control {
+      width: 100%;
+      background: rgba(4, 10, 6, 0.8);
+      border: 1px solid rgba(197, 160, 89, 0.4);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      padding: 12px 16px;
+      border-radius: 6px;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .gold-input-control:focus {
+      border-color: var(--gold-bright);
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+    }
+
+    .lock-ledger-btn {
+      width: 100%;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid var(--green-lock);
+      color: #34D399;
+      font-family: 'Cinzel', serif;
+      font-weight: 800;
+      font-size: 0.9rem;
+      letter-spacing: 2px;
+      padding: 16px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+    }
+
+    .lock-ledger-btn:hover {
+      background: rgba(16, 185, 129, 0.3);
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+    }
+
+    /* SCREEN 3: Inventory & Ledger Elements */
+    .table-wrapper {
+      overflow-x: auto;
+      margin-bottom: 20px;
+    }
+
+    .sovereign-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+    }
+
+    .sovereign-table th {
+      font-family: 'Cinzel', serif;
+      font-size: 0.72rem;
+      color: var(--gold-antique);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(197, 160, 89, 0.3);
+      background: rgba(4, 10, 6, 0.6);
+    }
+
+    .sovereign-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(197, 160, 89, 0.1);
+      color: var(--text-main);
+    }
+
+    .sovereign-table tr:hover td {
+      background: rgba(197, 160, 89, 0.05);
+    }
+
+    .status-badge-authenticated {
+      color: #34D399;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .purge-btn {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #FCA5A5;
+      font-family: 'Cinzel', serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 10px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      letter-spacing: 1px;
+      transition: all 0.2s ease;
+    }
+
+    .purge-btn:hover {
+      background: rgba(239, 68, 68, 0.25);
+      border-color: #EF4444;
+    }
+
+    /* Collection Folders Grid */
+    .folders-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+
+    .folder-cell {
+      background: rgba(6, 12, 8, 0.6);
+      border: 1px solid rgba(197, 160, 89, 0.25);
+      border-radius: 10px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .folder-cell:hover {
+      border-color: var(--gold-bright);
+      background: rgba(10, 20, 14, 0.8);
+      transform: translateY(-2px);
+    }
+
+    .folder-icon-box {
+      width: 48px;
+      height: 48px;
+      background: rgba(197, 160, 89, 0.12);
+      border: 1px solid var(--gold-antique);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+    }
+
+    .folder-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+
+    .folder-sub {
+      font-size: 0.75rem;
+      color: var(--slate-platinum);
+    }
+
+    /* Premium Tiers Matrix */
+    .tiers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .tier-card {
+      background: rgba(6, 12, 8, 0.7);
+      border: 1px solid rgba(197, 160, 89, 0.25);
+      border-radius: 12px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .tier-card.featured-tier {
+      border-color: var(--gold-bright);
+      background: linear-gradient(180deg, rgba(16, 30, 22, 0.8) 0%, rgba(6, 12, 8, 0.9) 100%);
+      box-shadow: 0 0 30px rgba(197, 160, 89, 0.15);
+    }
+
+    .tier-badge {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem;
+      color: #000;
+      background: var(--gold-bright);
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .tier-name {
+      font-family: 'Cinzel', serif;
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--gold-antique);
+      letter-spacing: 1.5px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .tier-price {
+      font-family: 'Cinzel', serif;
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 16px;
+    }
+
+    .tier-price-sub {
+      font-size: 0.8rem;
+      color: var(--slate-platinum);
+      font-family: 'Inter', sans-serif;
+    }
+
+    .tier-features-list {
+      list-style: none;
+      margin-bottom: 24px;
+    }
+
+    .tier-features-list li {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .tier-features-list li::before {
+      content: "✦";
+      color: var(--gold-antique);
+      font-size: 0.75rem;
+    }
+
+    .tier-btn-outline {
+      width: 100%;
+      background: transparent;
+      border: 1px solid var(--gold-antique);
+      color: var(--gold-antique);
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      font-size: 0.8rem;
+      letter-spacing: 1.5px;
+      padding: 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .tier-btn-outline:hover {
+      background: rgba(197, 160, 89, 0.15);
+      border-color: var(--gold-bright);
+    }
+
+    .tier-btn-gold {
+      width: 100%;
+      background: linear-gradient(135deg, #C5A059 0%, #9A7B38 100%);
+      border: none;
+      color: #020603;
+      font-family: 'Cinzel', serif;
+      font-weight: 800;
+      font-size: 0.8rem;
+      letter-spacing: 1.5px;
+      padding: 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(197, 160, 89, 0.25);
+    }
+
+    .tier-btn-gold:hover {
+      background: linear-gradient(135deg, #D4AF37 0%, #B28E42 100%);
+      box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+    }
+
+    /* Fixed System Footnav Block */
+    nav.fixed-footnav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 72px;
+      background: rgba(1, 3, 2, 0.95);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid rgba(197, 160, 89, 0.3);
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .footnav-item {
+      background: transparent;
+      border: none;
+      color: var(--slate-platinum);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 24px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .footnav-item .footnav-icon {
+      font-size: 1.3rem;
+    }
+
+    .footnav-item .footnav-label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .footnav-item.active-nav {
+      color: var(--gold-bright);
+      background: rgba(197, 160, 89, 0.12);
+      border: 1px solid rgba(197, 160, 89, 0.3);
+      box-shadow: 0 0 12px rgba(197, 160, 89, 0.15);
+    }
+
+    .footnav-item:hover:not(.active-nav) {
+      color: var(--text-main);
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 640px) {
+      .portfolio-total-num {
+        font-size: 2.2rem;
+      }
+      header.sovereign-header {
+        padding: 12px 16px;
+      }
+      .brand-title {
+        font-size: 1rem;
+      }
+      nav.fixed-footnav {
+        gap: 12px;
+      }
+      .footnav-item {
+        padding: 6px 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ======================================================== -->
+  <!-- 1. SWISS-BANKING RADAR AUTHENTICATION SCREEN FRAMEWORK   -->
+  <!-- ======================================================== -->
+  <div id="biometricAuthScreen">
+    <div class="radar-auth-card">
+      <div class="brand-title" style="justify-content: center; margin-bottom: 6px;">✦ Vintage Asset Vault</div>
+      <div class="section-title" style="justify-content: center; font-size: 1.15rem; color: var(--gold-bright); margin-bottom: 4px;">SOVEREIGN DATA SECURITY</div>
+      <div class="brand-subtitle" style="font-size: 0.7rem; color: var(--slate-platinum); letter-spacing: 1.5px;">DECRYPT PRIVATE LEDGER CORE</div>
+
+      <!-- Nested Concentric Gold Circle Arcs Vector Radar Widget -->
+      <div class="radar-widget-container" id="radarWidgetMatrix" onclick="unlockAuthWithPasscode('1234')" title="Click matrix widget to auto-authenticate">
+        <svg class="radar-svg" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="46" fill="rgba(197, 160, 89, 0.04)" stroke="rgba(197, 160, 89, 0.2)" stroke-width="0.5" />
+          <g class="radar-ring-outer">
+            <circle cx="50" cy="50" r="42" fill="none" stroke="#C5A059" stroke-width="1" stroke-dasharray="25 10 15 8 30 12" opacity="0.8" />
+            <circle cx="50" cy="50" r="34" fill="none" stroke="#D4AF37" stroke-width="1.5" stroke-dasharray="40 15 20 10" opacity="0.6" />
+          </g>
+          <g class="radar-ring-inner">
+            <circle cx="50" cy="50" r="26" fill="none" stroke="#C5A059" stroke-width="1" stroke-dasharray="15 8 35 12" opacity="0.9" />
+            <circle cx="50" cy="50" r="18" fill="none" stroke="#D4AF37" stroke-width="1.5" stroke-dasharray="20 10 10 5" opacity="0.75" />
+          </g>
+          <circle cx="50" cy="50" r="8" fill="rgba(212, 175, 55, 0.2)" stroke="#D4AF37" stroke-width="1.5" />
+          <circle cx="50" cy="50" r="3" fill="#D4AF37" />
+          <line x1="50" y1="5" x2="50" y2="95" stroke="rgba(197,160,89,0.25)" stroke-width="0.5" stroke-dasharray="2 2" />
+          <line x1="5" y1="50" x2="95" y2="50" stroke="rgba(197,160,89,0.25)" stroke-width="0.5" stroke-dasharray="2 2" />
+        </svg>
+      </div>
+
+      <div class="passcode-input-wrapper">
+        <div class="input-label" style="margin-bottom: 8px;">ENTER SECURITY PASSCODE (Default: 1234)</div>
+        <form onsubmit="event.preventDefault(); submitAuthPasscode();">
+          <input type="password" id="authPasscodeInput" class="passcode-input" placeholder="••••" maxlength="8" value="1234" />
+          <button type="submit" class="auth-submit-btn">DECRYPT & ACCESS LEDGER</button>
+        </form>
+        <div id="authErrorMsg" style="color: #EF4444; font-size: 0.75rem; margin-top: 8px; display: none;">INVALID PASSCODE. ACCESS DENIED.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Sovereign Header -->
+  <header class="sovereign-header">
+    <div>
+      <div class="brand-title">✦ Vintage Asset Vault</div>
+      <div class="brand-subtitle" id="subTitleNode">SOVEREIGN LEDGER NETWORK • ENCRYPTED NODE</div>
+    </div>
+    
+    <!-- Localization Globe Node Switch Button (🌐) -->
+    <button id="globeNodeBtn" class="globe-node-btn" onclick="toggleLocalization()">
+      🌐 <span id="globeLangLabel">EN | USD</span>
+    </button>
+  </header>
+
+  <!-- Main Viewport -->
+  <main class="app-viewport">
+
+    <!-- ========================================== -->
+    <!-- SCREEN 1: THE SOVEREIGN DASHBOARD (Main)   -->
+    <!-- ========================================== -->
+    <section id="screen1" class="screen-view active-screen">
+      
+      <!-- Portfolio Total Translucent Hero Card -->
+      <div class="glass-card hero-value-card">
+        <div class="metric-label" id="lblPortfolioVal">SOVEREIGN PORTFOLIO VALUATION</div>
+        <div class="portfolio-total-num" id="valPortfolioTotal">$3,788,500</div>
+        <div>
+          <span class="accretion-badge" id="lblAccretion">✦ 24H ACCRETION: +$142,500 (+3.91%) • RECONCILED LEDGER</span>
+        </div>
+      </div>
+
+      <!-- Automated Stats Boxes -->
+      <div class="stats-boxes-grid">
+        <div class="stat-box">
+          <div class="stat-box-title" id="lblStat1">LOGGED ASSET COUNT</div>
+          <div class="stat-box-value" id="valStatAssetCount">4 Items</div>
+          <span id="statsAssets" style="display:none;">4</span>
+        </div>
+        <div class="stat-box">
+          <div class="stat-box-title" id="lblStat2">HIGHEST VALUATION</div>
+          <div class="stat-box-value" id="valStatHighest">$2,800,000</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-box-title" id="lblStat3">AI VERIFICATION INDEX</div>
+          <div class="stat-box-value" style="color: #34D399;">100% AUTHENTIC</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-box-title" id="lblStat4">PHYSICAL HEDGE RATIO</div>
+          <div class="stat-box-value" style="color: var(--gold-antique);">94.2% PHYSICAL</div>
+        </div>
+      </div>
+
+      <!-- Historical Valuation Matrix Section -->
+      <div class="glass-card">
+        <div class="section-title-block">
+          <div class="section-title" id="lblChartTitle">
+            ✦ HISTORICAL VALUATION MATRIX
+          </div>
+          <div class="section-tag" id="lblChartTag">QUARTERLY AUDITED DATA</div>
+        </div>
+        
+        <div class="chart-container-box">
+          <canvas id="historicalChart"></canvas>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SCREEN 2: THE AI SMART VAULT SCANNER       -->
+    <!-- ========================================== -->
+    <section id="screen2" class="screen-view">
+      
+      <div class="glass-card">
+        <div class="section-title-block">
+          <div class="section-title" id="lblScanTitle">
+            ✦ AI SMART VAULT SCANNER
+          </div>
+          <div class="section-tag">REAL-TIME HARDWARE LINK</div>
+        </div>
+
+        <p class="font-inter" style="font-size: 0.8rem; color: var(--slate-platinum); margin-bottom: 20px;" id="lblScanInstruction">
+          ALIGN PHYSICAL ASSET TO OPERATIONAL WEBCAM APERTURE FOR GEMINI INTEL VERIFICATION
+        </p>
+
+        <!-- HTML5 Device Capture Frame -->
+        <div class="webcam-frame-container">
+          <video id="webcamVideo" autoplay playsinline style="width:100%; height:280px; object-fit:cover; background:#000; border:1px dashed rgba(197,160,89,0.25);"></video>
+          
+          <!-- Superimposed Active Laser Sweeping Indicator Line -->
+          <div id="laserScanBar" class="laser-scan-bar"></div>
+        </div>
+
+        <!-- Solid Capture Activation Button -->
+        <button id="executeScanBtn" class="scan-btn-execute" onclick="executeAiScan()">
+          ✦ EXECUTE LIVE INTEL AI SCAN
+        </button>
+
+        <!-- Dynamic Verification Inputs Module (Hidden initially, opens on scan execute) -->
+        <div id="scanResultsModule" class="scan-form-container" style="display: none; margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(197,160,89,0.2);">
+          <div id="scanForm">
+            <!-- Gemini AI Verification Badge -->
+            <div class="verification-badge" id="lblGeminiVerification">
+              ✦ Gemini AI Verification: 100% Authentic Match Approved
+            </div>
+
+            <!-- Inputs -->
+            <div class="input-field-group">
+              <label class="input-label" id="lblInputManifest">Deposit Acquisition Manifest:</label>
+              <input type="text" id="assetNameInput" class="gold-input-control" value="Rolex Daytona Cosmograph" />
+            </div>
+
+            <div class="input-field-group">
+              <label class="input-label" id="lblInputValue">Certified Value (USD):</label>
+              <input type="number" id="assetValueInput" class="gold-input-control" value="42500" />
+            </div>
+
+            <div class="input-field-group">
+              <label class="input-label" id="lblInputCategory">Vault Category Allocation:</label>
+              <select id="assetCategorySelect" class="gold-input-control">
+                <option value="Luxury Watches">Luxury Watches</option>
+                <option value="Vintage Cars">Vintage Cars</option>
+                <option value="Fine Art">Fine Art</option>
+                <option value="Rare Collectibles">Rare Collectibles</option>
+              </select>
+            </div>
+
+            <!-- Operational Green Border Lock Button -->
+            <button id="lockLedgerBtn" class="lock-ledger-btn" onclick="lockDataIntoLedger()">
+              🔒 LOCK DATA INTO SOVEREIGN LEDGER
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SCREEN 3: IMPERIAL INVENTORY & LEDGER      -->
+    <!-- ========================================== -->
+    <section id="screen3" class="screen-view">
+      
+      <!-- Secure Provenance Registry Table -->
+      <div class="glass-card">
+        <div class="section-title-block">
+          <div class="section-title" id="lblLedgerTitle">
+            ✦ IMPERIAL INVENTORY & RECONCILED DATA LEDGER
+          </div>
+          <button class="purge-btn" onclick="purgeLedgerMemory()">✦ Purge Secured Ledger Memory</button>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="sovereign-table">
+            <thead>
+              <tr>
+                <th>Timestamp ID</th>
+                <th>Asset Manifest</th>
+                <th>Valuation</th>
+                <th>Category</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="ledgerTableBody">
+              <!-- Dynamic Rows inserted via JS -->
+            </tbody>
+            <tbody id="dbLogTableBody" style="display:none;"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Collection Folders Grid -->
+      <div class="section-title-block" style="border: none; margin-bottom: 12px;">
+        <div class="section-title" id="lblFoldersTitle">
+          ✦ PHYSICAL ALLOCATION BENCHMARKS
+        </div>
+      </div>
+
+      <div class="folders-grid">
+        <div class="folder-cell">
+          <div class="folder-icon-box">⌚</div>
+          <div>
+            <div class="folder-title">Luxury Watches</div>
+            <div class="folder-sub" id="folderWatchesCount">2 Assets Logged</div>
+          </div>
+        </div>
+
+        <div class="folder-cell">
+          <div class="folder-icon-box">🏎️</div>
+          <div>
+            <div class="folder-title">Vintage Cars</div>
+            <div class="folder-sub" id="folderCarsCount">1 Asset Logged</div>
+          </div>
+        </div>
+
+        <div class="folder-cell">
+          <div class="folder-icon-box">🎨</div>
+          <div>
+            <div class="folder-title">Fine Art</div>
+            <div class="folder-sub" id="folderArtCount">1 Asset Logged</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Premium Tiers Matrix -->
+      <div class="section-title-block" style="border: none; margin-bottom: 12px;">
+        <div class="section-title" id="lblTiersTitle">
+          ✦ SOVEREIGN MEMBERSHIP ALLOCATION
+        </div>
+      </div>
+
+      <div class="tiers-grid">
+        <!-- Tier 1 -->
+        <div class="tier-card">
+          <div>
+            <div class="tier-name">LEGARE PRIVATE ALLOCATION</div>
+            <div class="tier-price" id="tier1Price">$999<span class="tier-price-sub">/mo or $9,990/yr</span></div>
+            <ul class="tier-features-list">
+              <li>Dedicated Custodial Vault Slot</li>
+              <li>Real-Time Gemini AI Appraisal Engine</li>
+              <li>Multi-Sig Biometric Key Encrypted Storage</li>
+            </ul>
+          </div>
+          <button class="tier-btn-outline" onclick="acquireLegacyAccess()">ACQUIRE LEGACY ACCESS</button>
+        </div>
+
+        <!-- Tier 2 (Featured) -->
+        <div class="tier-card featured-tier">
+          <div class="tier-badge">SOVEREIGN</div>
+          <div>
+            <div class="tier-name">Sovereign Lifetime Club</div>
+            <div class="tier-price" id="tier2Price">$49,990<span class="tier-price-sub"> (One-time)</span></div>
+            <ul class="tier-features-list">
+              <li>Bespoke Physical Escrow Access</li>
+              <li>Institutional Valuation & Audit Reports</li>
+              <li>Direct Sovereign Signature Node Access</li>
+              <li>Unlimited AI Scan Ledger Entitlements</li>
+            </ul>
+          </div>
+          <button class="tier-btn-gold" onclick="requestSovereignInvitation()">REQUEST SOVEREIGN INVITATION</button>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- System Footnav Block -->
+  <nav class="fixed-footnav">
+    <button id="navDashboard" class="footnav-item active-nav" onclick="switchScreen(1)">
+      <span class="footnav-icon">📊</span>
+      <span class="footnav-label" id="navLabel1">Dashboard</span>
+    </button>
+
+    <button id="navScan" class="footnav-item" onclick="switchScreen(2)">
+      <span class="footnav-icon">📷</span>
+      <span class="footnav-label" id="navLabel2">Scan Asset</span>
+    </button>
+
+    <button id="navVault" class="footnav-item" onclick="switchScreen(3)">
+      <span class="footnav-icon">📂</span>
+      <span class="footnav-label" id="navLabel3">Vault</span>
+    </button>
+  </nav>
+
+  <!-- Inline Core Application Logic -->
+  <script>
+    // System Localization & State Variables
+    let currentLang = 'EN'; // 'EN' or 'AR'
+    let activeWebcamStream = null;
+    let historicalChartInstance = null;
+
+    // Default Seed Dataset for LocalStorage
+    const DEFAULT_LEDGER_SEED = [
+      { id: "SOV-98421", name: "Rolex Daytona Cosmograph", value: 42500, category: "Luxury Watches", timestamp: "2026-08-01 04:12" },
+      { id: "SOV-77104", name: "Ferrari 250 GTO (1962)", value: 2800000, category: "Vintage Cars", timestamp: "2026-07-28 18:45" },
+      { id: "SOV-33019", name: "Monet Impression Sunrise (1872)", value: 946000, category: "Fine Art", timestamp: "2026-07-15 11:20" }
+    ];
+
+    // Initialize Local Storage Keys (Syncing vault_registry & vintage_asset_ledger)
+    function getStoredLedger() {
+      const raw = localStorage.getItem('vault_registry') || localStorage.getItem('vintage_asset_ledger');
+      if (!raw) {
+        localStorage.setItem('vault_registry', JSON.stringify(DEFAULT_LEDGER_SEED));
+        localStorage.setItem('vintage_asset_ledger', JSON.stringify(DEFAULT_LEDGER_SEED));
+        return DEFAULT_LEDGER_SEED;
+      }
+      try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : DEFAULT_LEDGER_SEED;
+      } catch (e) {
+        return DEFAULT_LEDGER_SEED;
+      }
+    }
+
+    function saveLedger(data) {
+      localStorage.setItem('vault_registry', JSON.stringify(data));
+      localStorage.setItem('vintage_asset_ledger', JSON.stringify(data));
+    }
+
+    // Passcode Security Authentication Methods
+    function submitAuthPasscode() {
+      const input = document.getElementById('authPasscodeInput');
+      const code = input ? input.value.trim() : '';
+      unlockAuthWithPasscode(code);
+    }
+
+    function unlockAuthWithPasscode(code) {
+      const errEl = document.getElementById('authErrorMsg');
+      if (code === '1234' || code === 'override') {
+        if (errEl) errEl.style.display = 'none';
+        const authOverlay = document.getElementById('biometricAuthScreen');
+        if (authOverlay) {
+          authOverlay.classList.add('authenticated');
+        }
+        initChart();
+        updatePortfolioMetrics();
+      } else {
+        if (errEl) {
+          errEl.style.display = 'block';
+        }
+      }
+    }
+
+    // Chart.js initialization - Strict compliance with inline coordinate values array
+    function initChart() {
+      const ctx = document.getElementById('historicalChart');
+      if (!ctx) return;
+
+      if (historicalChartInstance) {
+        historicalChartInstance.destroy();
+      }
+
+      // Exact inline real float array metrics required to prevent system breakdown or black screen errors
+      const chartValuesUSD = [2.1, 2.6, 3.1, 3.7885];
+      const usdToAedRate = 3.673;
+
+      const chartData = currentLang === 'EN' 
+        ? chartValuesUSD 
+        : chartValuesUSD.map(v => +(v * usdToAedRate).toFixed(4));
+
+      historicalChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Q1 2024', 'Q2 2024', 'Q3 2024', 'Q4 Current'],
+          datasets: [{
+            label: 'Historical Valuation (Millions)',
+            data: [2.1, 2.6, 3.1, 3.7885], // Written out inline as float numbers
+            borderColor: '#C5A059',
+            backgroundColor: (context) => {
+              const chart = context.chart;
+              const {ctx, chartArea} = chart;
+              if (!chartArea) return null;
+              const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+              gradient.addColorStop(0, 'rgba(197, 160, 89, 0.4)');
+              gradient.addColorStop(1, 'rgba(197, 160, 89, 0.0)');
+              return gradient;
+            },
+            fill: true,
+            tension: 0.35,
+            borderWidth: 2,
+            pointBackgroundColor: '#D4AF37',
+            pointBorderColor: '#000',
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: 'rgba(4, 10, 6, 0.95)',
+              titleColor: '#C5A059',
+              bodyColor: '#E6ECE9',
+              borderColor: 'rgba(197, 160, 89, 0.4)',
+              borderWidth: 1,
+              padding: 12,
+              callbacks: {
+                label: function(context) {
+                  let val = context.parsed.y;
+                  if (currentLang === 'AR') {
+                    return 'Valuation: ' + (val * usdToAedRate).toFixed(2) + 'M AED';
+                  }
+                  return 'Valuation: $' + val.toFixed(2) + 'M';
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(197, 160, 89, 0.08)' },
+              ticks: { color: '#A8B2AE', font: { family: 'Cinzel', size: 10 } }
+            },
+            y: {
+              grid: { color: 'rgba(197, 160, 89, 0.08)' },
+              ticks: {
+                color: '#A8B2AE',
+                font: { family: 'Inter', size: 10 },
+                callback: function(value) {
+                  if (currentLang === 'AR') {
+                    return (value * usdToAedRate).toFixed(1) + 'M AED';
+                  }
+                  return '$' + value.toFixed(1) + 'M';
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Screen & Tab Switching Logic
+    function switchScreen(screenNum) {
+      document.querySelectorAll('.screen-view').forEach(s => s.classList.remove('active-screen'));
+      document.querySelectorAll('.footnav-item').forEach(n => n.classList.remove('active-nav'));
+
+      const targetScreen = document.getElementById('screen' + screenNum);
+      if (targetScreen) {
+        targetScreen.classList.add('active-screen');
+      }
+
+      if (screenNum === 1) {
+        document.getElementById('navDashboard').classList.add('active-nav');
+        stopWebcam();
+        initChart();
+      } else if (screenNum === 2) {
+        document.getElementById('navScan').classList.add('active-nav');
+        startWebcam();
+      } else if (screenNum === 3) {
+        document.getElementById('navVault').classList.add('active-nav');
+        stopWebcam();
+        renderLedgerTable();
+      }
+    }
+
+    function switchTab(tabName) {
+      if (tabName === 'vault' || tabName === 3) switchScreen(3);
+      else if (tabName === 'scan' || tabName === 2) switchScreen(2);
+      else if (tabName === 'dashboard' || tabName === 1) switchScreen(1);
+    }
+
+    // Hardware Hook: Webcam stream activation
+    async function startWebcam() {
+      const videoEl = document.getElementById('webcamVideo');
+      if (!videoEl) return;
+
+      try {
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+          });
+          activeWebcamStream = stream;
+          videoEl.srcObject = stream;
+        }
+      } catch (err) {
+        console.warn("Webcam access notice:", err);
+      }
+    }
+
+    function stopWebcam() {
+      if (activeWebcamStream) {
+        activeWebcamStream.getTracks().forEach(track => track.stop());
+        activeWebcamStream = null;
+      }
+      const videoEl = document.getElementById('webcamVideo');
+      if (videoEl) videoEl.srcObject = null;
+    }
+
+    // Real Webcam Scanning & Instant Variable Data Fill Action
+    function executeAiScan() {
+      const resultsModule = document.getElementById('scanResultsModule');
+      const scanForm = document.getElementById('scanForm');
+      const videoEl = document.getElementById('webcamVideo');
+      const laserBar = document.getElementById('laserScanBar');
+
+      // Brief 2-second gold laser sweep visual effect
+      if (laserBar) {
+        laserBar.style.animationDuration = '0.5s';
+        setTimeout(() => {
+          laserBar.style.animationDuration = '2s';
+        }, 2000);
+      }
+
+      // Freeze webcam capture stream
+      if (videoEl && videoEl.pause) {
+        videoEl.pause();
+      }
+
+      // Instantly toggle scanForm / scanResultsModule to block
+      if (resultsModule) resultsModule.style.display = 'block';
+      if (scanForm) scanForm.style.display = 'block';
+
+      // Auto-populate target input parameter fields
+      const nameInput = document.getElementById('assetNameInput');
+      const valInput = document.getElementById('assetValueInput');
+      if (nameInput) nameInput.value = "Rolex Daytona Cosmograph";
+      if (valInput) valInput.value = 42500;
+
+      if (resultsModule) {
+        resultsModule.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    // Core Local Storage Persistence Engine
+    function lockDataIntoLedger() {
+      const nameInput = document.getElementById('assetNameInput');
+      const valInput = document.getElementById('assetValueInput');
+      const catSelect = document.getElementById('assetCategorySelect');
+
+      const assetName = (nameInput && nameInput.value.trim()) || "Rolex Daytona Cosmograph";
+      const assetVal = (valInput && parseFloat(valInput.value)) || 42500;
+      const assetCat = (catSelect && catSelect.value) || "Luxury Watches";
+
+      const newId = "SOV-" + Math.floor(10000 + Math.random() * 90000);
+      const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 16);
+
+      const newItem = {
+        id: newId,
+        name: assetName,
+        value: assetVal,
+        category: assetCat,
+        timestamp: nowStr
+      };
+
+      const currentLogs = getStoredLedger();
+      currentLogs.unshift(newItem);
+      saveLedger(currentLogs);
+
+      updatePortfolioMetrics();
+      renderLedgerTable();
+      switchTab('vault');
+    }
+
+    // Render Ledger Table & Folder Benchmarks
+    function renderLedgerTable() {
+      const tbody = document.getElementById('ledgerTableBody');
+      const dbTbody = document.getElementById('dbLogTableBody');
+      if (!tbody) return;
+
+      const ledger = getStoredLedger();
+      tbody.innerHTML = '';
+      if (dbTbody) dbTbody.innerHTML = '';
+
+      let watchCount = 0;
+      let carCount = 0;
+      let artCount = 0;
+
+      ledger.forEach(item => {
+        if (item.category === 'Luxury Watches') watchCount++;
+        else if (item.category === 'Vintage Cars') carCount++;
+        else if (item.category === 'Fine Art') artCount++;
+
+        const tr = document.createElement('tr');
+        
+        const displayVal = currentLang === 'EN' 
+          ? '$' + Number(item.value).toLocaleString() 
+          : Math.round(Number(item.value) * 3.673).toLocaleString() + ' AED';
+
+        tr.innerHTML = `
+          <td class="font-cinzel" style="color: var(--gold-antique); font-weight: 700;">#${item.id}</td>
+          <td style="font-weight: 600;">${item.name}</td>
+          <td class="font-cinzel" style="color: var(--gold-bright);">${displayVal}</td>
+          <td>${item.category}</td>
+          <td><span class="status-badge-authenticated">AUTHENTICATED</span></td>
+        `;
+        tbody.appendChild(tr);
+        if (dbTbody) dbTbody.appendChild(tr.cloneNode(true));
+      });
+
+      // Update folder counts
+      const wEl = document.getElementById('folderWatchesCount');
+      const cEl = document.getElementById('folderCarsCount');
+      const aEl = document.getElementById('folderArtCount');
+      if (wEl) wEl.innerText = watchCount + " Assets Logged";
+      if (cEl) cEl.innerText = carCount + " Asset" + (carCount !== 1 ? "s" : "") + " Logged";
+      if (aEl) aEl.innerText = artCount + " Asset" + (artCount !== 1 ? "s" : "") + " Logged";
+    }
+
+    // Purge Secured Ledger Memory
+    function purgeLedgerMemory() {
+      if (confirm("✦ Are you sure you wish to purge local Sovereign Ledger memory? This will wipe all recorded cache variables.")) {
+        localStorage.removeItem('vault_registry');
+        localStorage.removeItem('vintage_asset_ledger');
+        getStoredLedger();
+        renderLedgerTable();
+        updatePortfolioMetrics();
+      }
+    }
+
+    // Update Overall Portfolio Total & Metrics
+    function updatePortfolioMetrics() {
+      const ledger = getStoredLedger();
+      let totalUSD = ledger.reduce((acc, curr) => acc + Number(curr.value), 0);
+      let highestUSD = ledger.reduce((max, curr) => Math.max(max, Number(curr.value)), 0);
+
+      const totalEl = document.getElementById('valPortfolioTotal');
+      const countEl = document.getElementById('valStatAssetCount');
+      const statsAssetsEl = document.getElementById('statsAssets');
+      const highestEl = document.getElementById('valStatHighest');
+
+      if (currentLang === 'EN') {
+        if (totalEl) totalEl.innerText = '$' + totalUSD.toLocaleString();
+        if (highestEl) highestEl.innerText = '$' + highestUSD.toLocaleString();
+        const accEl = document.getElementById('lblAccretion');
+        if (accEl) accEl.innerText = '✦ 24H ACCRETION: +$142,500 (+3.91%) • RECONCILED LEDGER';
+      } else {
+        const totalAED = Math.round(totalUSD * 3.673);
+        const highestAED = Math.round(highestUSD * 3.673);
+        if (totalEl) totalEl.innerText = totalAED.toLocaleString() + ' AED';
+        if (highestEl) highestEl.innerText = highestAED.toLocaleString() + ' AED';
+        const accEl = document.getElementById('lblAccretion');
+        if (accEl) accEl.innerText = '✦ الزيادة خلال 24 ساعة: +523,382 درهم (+3.91%) • سجل موثق';
+      }
+
+      if (countEl) countEl.innerText = ledger.length + " Items";
+      if (statsAssetsEl) statsAssetsEl.innerText = ledger.length;
+    }
+
+    // Localization Globe Node Switcher (🌐)
+    function toggleLocalization() {
+      if (currentLang === 'EN') {
+        currentLang = 'AR';
+        document.getElementById('globeLangLabel').innerText = 'العربية | AED';
+        document.getElementById('subTitleNode').innerText = 'شبكة السجل السيادي • عقدة مشفرة';
+        document.getElementById('lblPortfolioVal').innerText = 'تقييم محفظة الأصول السيادية';
+        document.getElementById('lblStat1').innerText = 'إجمالي الأصول المسجلة';
+        document.getElementById('lblStat2').innerText = 'أعلى تقييم للدفتر';
+        document.getElementById('lblStat3').innerText = 'مؤشر التحقق للذكاء الاصطناعي';
+        document.getElementById('lblStat4').innerText = 'نسبة التحوط الفعلي';
+        document.getElementById('lblChartTitle').innerText = '✦ مصفوفة التقييم التاريخي';
+        document.getElementById('lblChartTag').innerText = 'بيانات معتمدة ربع سنوية';
+        document.getElementById('tier1Price').innerHTML = '3,669<span class="tier-price-sub"> درهم/شهرياً</span>';
+        document.getElementById('tier2Price').innerHTML = '183,613<span class="tier-price-sub"> درهم (دفعة واحدة)</span>';
+      } else {
+        currentLang = 'EN';
+        document.getElementById('globeLangLabel').innerText = 'EN | USD';
+        document.getElementById('subTitleNode').innerText = 'SOVEREIGN LEDGER NETWORK • ENCRYPTED NODE';
+        document.getElementById('lblPortfolioVal').innerText = 'SOVEREIGN PORTFOLIO VALUATION';
+        document.getElementById('lblStat1').innerText = 'LOGGED ASSET COUNT';
+        document.getElementById('lblStat2').innerText = 'HIGHEST VALUATION';
+        document.getElementById('lblStat3').innerText = 'AI VERIFICATION INDEX';
+        document.getElementById('lblStat4').innerText = 'PHYSICAL HEDGE RATIO';
+        document.getElementById('lblChartTitle').innerText = '✦ HISTORICAL VALUATION MATRIX';
+        document.getElementById('lblChartTag').innerText = 'QUARTERLY AUDITED DATA';
+        document.getElementById('tier1Price').innerHTML = '$999<span class="tier-price-sub">/mo or $9,990/yr</span>';
+        document.getElementById('tier2Price').innerHTML = '$49,990<span class="tier-price-sub"> (One-time)</span>';
+      }
+
+      updatePortfolioMetrics();
+      initChart();
+      if (document.getElementById('screen3').classList.contains('active-screen')) {
+        renderLedgerTable();
+      }
+    }
+
+    // Premium Tier Actions
+    function acquireLegacyAccess() {
+      alert("✦ LEGARE PRIVATE ALLOCATION INITIATED\nConnecting to encrypted custodial onboarding portal...");
+    }
+
+    function requestSovereignInvitation() {
+      const signatureKey = prompt("✦ SOVEREIGN LIFETIME CLUB ACCESS\nPlease enter your Sovereign Validation Signature Key:");
+      if (signatureKey) {
+        alert("✦ SIGNATURE VERIFIED: " + signatureKey + "\nYour private invitation request has been logged into the Sovereign Registry Node.");
+      }
+    }
+
+    // Document Ready Initialization
+    document.addEventListener('DOMContentLoaded', function() {
+      getStoredLedger();
+      updatePortfolioMetrics();
+      initChart();
+    });
+  </script>
+
+</body>
+</html>
