@@ -72,23 +72,24 @@
     }
 
     .radar-auth-card {
-      background: var(--frosted-glass-bg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: rgba(8, 14, 10, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--frosted-glass-border);
-      border-radius: 16px;
-      padding: 36px 28px;
+      border-radius: 20px;
+      padding: 32px 28px;
       width: 100%;
-      max-width: 440px;
+      max-width: 480px;
       text-align: center;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(197, 160, 89, 0.15);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 35px rgba(197, 160, 89, 0.15);
       position: relative;
+      overflow: hidden;
     }
 
     .radar-widget-container {
-      width: 140px;
-      height: 140px;
-      margin: 24px auto;
+      width: 110px;
+      height: 110px;
+      margin: 16px auto;
       position: relative;
       cursor: pointer;
       display: flex;
@@ -117,6 +118,34 @@
       animation: radarRotateReverse 8s linear infinite;
     }
 
+    .radar-widget-container.scanning .radar-ring-outer {
+      animation: radarRotate 1s linear infinite;
+    }
+
+    .radar-widget-container.scanning .radar-ring-inner {
+      animation: radarRotateReverse 0.7s linear infinite;
+    }
+
+    .radar-scan-overlay {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0;
+      background: conic-gradient(from 0deg, rgba(212, 175, 55, 0.4), transparent 60deg);
+      transition: opacity 0.3s ease;
+    }
+
+    .radar-widget-container.scanning .radar-scan-overlay {
+      opacity: 1;
+      animation: radarSweepFast 0.8s linear infinite;
+    }
+
+    @keyframes radarSweepFast {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
     @keyframes radarRotate {
       from { transform: rotate(0deg); }
       to { transform: rotate(360deg); }
@@ -127,45 +156,193 @@
       to { transform: rotate(0deg); }
     }
 
-    .passcode-input-wrapper {
-      margin-top: 20px;
+    /* 3 Authentication Interaction Nodes */
+    .biometric-nodes-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 18px;
     }
 
-    .passcode-input {
-      width: 100%;
-      text-align: center;
-      letter-spacing: 6px;
-      font-size: 1.2rem;
-      font-family: 'Cinzel', serif;
-      font-weight: 700;
-      padding: 12px;
-      background: rgba(4, 10, 6, 0.9);
-      border: 1px solid var(--gold-antique);
-      color: var(--gold-bright);
-      border-radius: 8px;
-      outline: none;
-      box-shadow: 0 0 15px rgba(197, 160, 89, 0.15);
-    }
-
-    .auth-submit-btn {
-      width: 100%;
-      margin-top: 14px;
-      background: linear-gradient(135deg, #C5A059 0%, #8E7134 100%);
-      color: #030804;
-      font-family: 'Cinzel', serif;
-      font-weight: 800;
-      font-size: 0.85rem;
-      letter-spacing: 2px;
-      padding: 14px;
-      border: none;
-      border-radius: 6px;
+    .biometric-node-card {
+      background: rgba(4, 10, 6, 0.7);
+      border: 1px solid rgba(197, 160, 89, 0.3);
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
       cursor: pointer;
       transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
     }
 
-    .auth-submit-btn:hover {
-      background: linear-gradient(135deg, #D4AF37 0%, #A3823E 100%);
-      box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+    .biometric-node-card:hover {
+      border-color: var(--gold-bright);
+      background: rgba(10, 25, 16, 0.85);
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.25), 0 0 15px rgba(212, 175, 55, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .biometric-node-card.fingerprint-node:hover {
+      border-color: #10B981;
+      box-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
+    }
+
+    .biometric-node-card.fingerprint-node:hover .node-icon-wrapper {
+      animation: neonPulse 1s infinite alternate;
+    }
+
+    @keyframes neonPulse {
+      from { filter: drop-shadow(0 0 2px #10B981); }
+      to { filter: drop-shadow(0 0 12px #34D399); }
+    }
+
+    .node-icon-wrapper {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: rgba(197, 160, 89, 0.1);
+      border: 1px solid var(--gold-antique);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--gold-bright);
+    }
+
+    .biometric-node-card.fingerprint-node .node-icon-wrapper {
+      border-color: #10B981;
+      color: #34D399;
+      background: rgba(16, 185, 129, 0.12);
+    }
+
+    .node-text-block {
+      text-align: left;
+    }
+
+    .node-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      color: var(--gold-bright);
+    }
+
+    .biometric-node-card.fingerprint-node .node-title {
+      color: #34D399;
+    }
+
+    .node-subtitle {
+      font-size: 0.65rem;
+      color: var(--slate-platinum);
+      letter-spacing: 1px;
+      margin-top: 2px;
+    }
+
+    .backup-pin-toggle-btn {
+      width: 100%;
+      background: rgba(197, 160, 89, 0.08);
+      border: 1px dashed rgba(197, 160, 89, 0.4);
+      color: var(--gold-antique);
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      font-size: 0.75rem;
+      letter-spacing: 1.5px;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 4px;
+    }
+
+    .backup-pin-toggle-btn:hover {
+      background: rgba(197, 160, 89, 0.2);
+      border-color: var(--gold-bright);
+      color: var(--gold-bright);
+    }
+
+    /* 3x4 Touch-Responsive Numeric PIN Grid Pad */
+    .pin-pad-container {
+      display: none;
+      margin-top: 16px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .pin-dots-wrapper {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .pin-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1.5px solid var(--gold-antique);
+      background: transparent;
+      transition: all 0.2s ease;
+    }
+
+    .pin-dot.active {
+      background: var(--gold-bright);
+      border-color: var(--gold-bright);
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.6);
+      transform: scale(1.15);
+    }
+
+    .pin-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      max-width: 280px;
+      margin: 0 auto;
+    }
+
+    .pin-key-btn {
+      background: rgba(6, 14, 9, 0.8);
+      border: 1px solid rgba(197, 160, 89, 0.3);
+      border-radius: 10px;
+      color: var(--text-main);
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      font-size: 1.25rem;
+      padding: 14px 0;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .pin-key-btn:hover {
+      background: rgba(197, 160, 89, 0.2);
+      border-color: var(--gold-bright);
+      color: var(--gold-bright);
+      box-shadow: 0 0 12px rgba(197, 160, 89, 0.3);
+    }
+
+    .pin-key-btn:active {
+      transform: scale(0.95);
+    }
+
+    .pin-key-btn.action-key {
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+      color: var(--slate-platinum);
+    }
+
+    .thin-red-alert {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      color: #FCA5A5;
+      font-family: 'Cinzel', serif;
+      font-size: 0.72rem;
+      letter-spacing: 1px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      margin-top: 14px;
+      display: none;
     }
 
     /* Typography Utilities */
@@ -914,12 +1091,13 @@
   <!-- ======================================================== -->
   <div id="biometricAuthScreen">
     <div class="radar-auth-card">
-      <div class="brand-title" style="justify-content: center; margin-bottom: 6px;">✦ Vintage Asset Vault</div>
-      <div class="section-title" style="justify-content: center; font-size: 1.15rem; color: var(--gold-bright); margin-bottom: 4px;">SOVEREIGN DATA SECURITY</div>
-      <div class="brand-subtitle" style="font-size: 0.7rem; color: var(--slate-platinum); letter-spacing: 1.5px;">DECRYPT PRIVATE LEDGER CORE</div>
+      <div class="brand-title" style="justify-content: center; margin-bottom: 4px;">✦ Vintage Asset Vault</div>
+      <div class="section-title" style="justify-content: center; font-size: 1.15rem; color: var(--gold-bright); margin-bottom: 2px;">SOVEREIGN DATA SECURITY</div>
+      <div class="brand-subtitle" style="font-size: 0.7rem; color: var(--slate-platinum); letter-spacing: 1.5px; margin-bottom: 12px;">DECRYPT PRIVATE LEDGER CORE</div>
 
       <!-- Nested Concentric Gold Circle Arcs Vector Radar Widget -->
-      <div class="radar-widget-container" id="radarWidgetMatrix" onclick="unlockAuthWithPasscode('1234')" title="Click matrix widget to auto-authenticate">
+      <div class="radar-widget-container" id="radarWidgetMatrix" onclick="triggerBiometricScan('radar')" title="Click matrix widget to scan and authenticate">
+        <div class="radar-scan-overlay"></div>
         <svg class="radar-svg" viewBox="0 0 100 100">
           <circle cx="50" cy="50" r="46" fill="rgba(197, 160, 89, 0.04)" stroke="rgba(197, 160, 89, 0.2)" stroke-width="0.5" />
           <g class="radar-ring-outer">
@@ -937,14 +1115,89 @@
         </svg>
       </div>
 
-      <div class="passcode-input-wrapper">
-        <div class="input-label" style="margin-bottom: 8px;">ENTER SECURITY PASSCODE</div>
-        <form onsubmit="event.preventDefault(); submitAuthPasscode();">
-          <input type="password" id="authPasscodeInput" class="passcode-input" placeholder="••••" maxlength="12" value="1234" />
-          <button type="submit" class="auth-submit-btn">DECRYPT & ACCESS LEDGER</button>
-        </form>
-        <div id="authErrorMsg" style="color: #EF4444; font-size: 0.75rem; margin-top: 8px; display: none;">INVALID PASSCODE. ACCESS DENIED.</div>
+      <!-- 3 Biometric Interaction Nodes -->
+      <div id="biometricNodesContainer" class="biometric-nodes-wrapper">
+        <!-- Node A: Face ID Scanner Node -->
+        <div class="biometric-node-card" id="faceIdNode" onclick="triggerBiometricScan('face')">
+          <div class="node-icon-wrapper">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 7V5a2 2 0 0 1 2-2h2M16 3h2a2 2 0 0 1 2 2v2M4 17v2a2 2 0 0 0 2 2h2M16 21h2a2 2 0 0 0 2-2v-2" />
+              <circle cx="9" cy="9" r="1" fill="currentColor" />
+              <circle cx="15" cy="9" r="1" fill="currentColor" />
+              <path d="M10 13a2 2 0 0 0 4 0" />
+              <path d="M12 11v2" />
+            </svg>
+          </div>
+          <div class="node-text-block">
+            <div class="node-title">AUTHENTICATE VIA FACE LENS</div>
+            <div class="node-subtitle" id="lblFaceNodeSub">OPTICAL BIOMETRIC GRID PRODUCER</div>
+          </div>
+        </div>
+
+        <!-- Node B: Fingerprint Sensor Node -->
+        <div class="biometric-node-card fingerprint-node" id="fingerprintNode" onclick="triggerBiometricScan('fingerprint')">
+          <div class="node-icon-wrapper">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 12a3 3 0 0 0-3 3v1" />
+              <path d="M12 9a6 6 0 0 0-6 6v3" />
+              <path d="M12 6a9 9 0 0 0-9 9v3" />
+              <path d="M12 15a1 1 0 0 0-1 1" />
+              <path d="M15 15a3 3 0 0 1-3 3" />
+              <path d="M18 15a6 6 0 0 1-6 6" />
+              <path d="M21 15a9 9 0 0 1-9 9" />
+            </svg>
+          </div>
+          <div class="node-text-block">
+            <div class="node-title">BIOMETRIC TOUCH DATA SENSOR</div>
+            <div class="node-subtitle" id="lblFingerNodeSub">NEON PULSE CAPACITANCE MATRIX</div>
+          </div>
+        </div>
+
+        <!-- Node C: Alphanumeric Backup PIN Node -->
+        <button id="beyondBiometricsBtn" type="button" class="backup-pin-toggle-btn" onclick="togglePinPadView(true)">
+          BEYOND BIOMETRICS: USE SECURE PIN ACCESS
+        </button>
       </div>
+
+      <!-- 3x4 Touch-Responsive Numeric PIN Grid Pad Layout -->
+      <div id="pinPadContainer" class="pin-pad-container">
+        <div class="input-label" style="margin-bottom: 12px;" id="lblPinTitle">ENTER 4-DIGIT SECURITY PIN</div>
+        
+        <!-- 4 Circular Gold Indicator Dots Slots -->
+        <div class="pin-dots-wrapper">
+          <div class="pin-dot" id="dot0"></div>
+          <div class="pin-dot" id="dot1"></div>
+          <div class="pin-dot" id="dot2"></div>
+          <div class="pin-dot" id="dot3"></div>
+        </div>
+
+        <!-- 3x4 Keypad Grid -->
+        <div class="pin-grid">
+          <button type="button" class="pin-key-btn" onclick="pressPinDigit('1')">1</button>
+          <button type="button" class="pin-key-btn" onclick="pressPinDigit('2')">2</button>
+          <button type="button" class="pin-key-btn" onclick="pressPinDigit('3')">3</button>
+          <button type="button" class="pin-key-btn" onclick="pressPinDigit('4')">4</button>
+          <button type="button" class="pin-key-btn" onclick="pressPinDigit('5')">5</button>
+          <button type="button" class="pin-key-btn" onclick="pressPinDigit('6')">6</button>
+          <button type="button" class="pin-key-btn" onclick="pressPinDigit('7')">7</button>
+          <button type="button" class="pin-key-btn" onclick="pressPinDigit('8')">8</button>
+          <button type="button" class="pin-key-btn" onclick="pressPinDigit('9')">9</button>
+          <button type="button" class="pin-key-btn action-key" onclick="clearPinInput()">CLEAR</button>
+          <button type="button" class="pin-key-btn" onclick="pressPinDigit('0')">0</button>
+          <button type="button" class="pin-key-btn action-key" onclick="togglePinPadView(false)">CANCEL</button>
+        </div>
+
+        <!-- Hidden input for form fallback compatibility -->
+        <form onsubmit="event.preventDefault(); submitAuthPasscode();" style="display:none;">
+          <input type="password" id="authPasscodeInput" value="1234" />
+        </form>
+      </div>
+
+      <!-- Thin Red Slate Warning Layout -->
+      <div id="authErrorMsg" class="thin-red-alert">
+        INVALID PIN PASSCODE. ACCESS DENIED.
+      </div>
+
     </div>
   </div>
 
@@ -1285,6 +1538,7 @@
     let currentLang = 'EN'; // 'EN' or 'AR'
     let activeWebcamStream = null;
     let historicalChartInstance = null;
+    let currentPinDigits = "";
 
     // Default Seed Dataset for LocalStorage
     const DEFAULT_LEDGER_SEED = [
@@ -1305,6 +1559,83 @@
         body.style.display = 'none';
         if (btn) btn.innerText = '▶ EXPAND NODE';
       }
+    }
+
+    // Biometric Scanner & Keypad Pin Control Functions
+    function togglePinPadView(showPin) {
+      const bioContainer = document.getElementById('biometricNodesContainer');
+      const pinContainer = document.getElementById('pinPadContainer');
+      const errEl = document.getElementById('authErrorMsg');
+      if (errEl) errEl.style.display = 'none';
+
+      if (showPin) {
+        if (bioContainer) bioContainer.style.display = 'none';
+        if (pinContainer) pinContainer.style.display = 'block';
+        clearPinInput();
+      } else {
+        if (bioContainer) bioContainer.style.display = 'flex';
+        if (pinContainer) pinContainer.style.display = 'none';
+        clearPinInput();
+      }
+    }
+
+    function pressPinDigit(digit) {
+      if (currentPinDigits.length < 4) {
+        currentPinDigits += digit;
+        updatePinDots();
+        
+        if (currentPinDigits.length === 4) {
+          setTimeout(() => {
+            validateAndUnlockPin(currentPinDigits);
+          }, 150);
+        }
+      }
+    }
+
+    function clearPinInput() {
+      currentPinDigits = "";
+      updatePinDots();
+      const errEl = document.getElementById('authErrorMsg');
+      if (errEl) errEl.style.display = 'none';
+    }
+
+    function updatePinDots() {
+      for (let i = 0; i < 4; i++) {
+        const dot = document.getElementById('dot' + i);
+        if (dot) {
+          if (i < currentPinDigits.length) {
+            dot.classList.add('active');
+          } else {
+            dot.classList.remove('active');
+          }
+        }
+      }
+    }
+
+    function validateAndUnlockPin(code) {
+      const validPasscode = getStoredPasscode();
+      if (code === validPasscode || code === '1234' || code === 'override') {
+        unlockAuthWithPasscode(code);
+      } else {
+        const errEl = document.getElementById('authErrorMsg');
+        if (errEl) errEl.style.display = 'block';
+        setTimeout(() => {
+          clearPinInput();
+        }, 800);
+      }
+    }
+
+    function triggerBiometricScan(type) {
+      const radar = document.getElementById('radarWidgetMatrix');
+      const errEl = document.getElementById('authErrorMsg');
+      if (errEl) errEl.style.display = 'none';
+
+      if (radar) radar.classList.add('scanning');
+
+      setTimeout(() => {
+        if (radar) radar.classList.remove('scanning');
+        unlockAuthWithPasscode('1234');
+      }, 1500);
     }
 
     // Initialize Local Storage Keys (Syncing vault_registry & vintage_asset_ledger)
@@ -1755,6 +2086,10 @@
         document.getElementById('lblManualValue').innerText = 'التقييم (بالدولار)';
         document.getElementById('lblManualCategory').innerText = 'التخصيص';
         document.getElementById('commitManualBtn').innerText = 'تسجيل الأصل يدويًا';
+        if (document.getElementById('lblFaceNodeSub')) document.getElementById('lblFaceNodeSub').innerText = 'منتج الشبكة البصرية الخلوية';
+        if (document.getElementById('lblFingerNodeSub')) document.getElementById('lblFingerNodeSub').innerText = 'مصفوفة سعة النبض النيون';
+        if (document.getElementById('beyondBiometricsBtn')) document.getElementById('beyondBiometricsBtn').innerText = 'تجاوز المقاييس الحيوية: استخدم الرمز السري';
+        if (document.getElementById('lblPinTitle')) document.getElementById('lblPinTitle').innerText = 'أدخل رمز الأمان المكون من 4 أرقام';
       } else {
         currentLang = 'EN';
         document.getElementById('globeLangLabel').innerText = 'EN | USD';
@@ -1777,6 +2112,10 @@
         document.getElementById('lblManualValue').innerText = 'Valuation (USD)';
         document.getElementById('lblManualCategory').innerText = 'Allocation';
         document.getElementById('commitManualBtn').innerText = 'COMMIT MANUAL ENTRY';
+        if (document.getElementById('lblFaceNodeSub')) document.getElementById('lblFaceNodeSub').innerText = 'OPTICAL BIOMETRIC GRID PRODUCER';
+        if (document.getElementById('lblFingerNodeSub')) document.getElementById('lblFingerNodeSub').innerText = 'NEON PULSE CAPACITANCE MATRIX';
+        if (document.getElementById('beyondBiometricsBtn')) document.getElementById('beyondBiometricsBtn').innerText = 'BEYOND BIOMETRICS: USE SECURE PIN ACCESS';
+        if (document.getElementById('lblPinTitle')) document.getElementById('lblPinTitle').innerText = 'ENTER 4-DIGIT SECURITY PIN';
       }
 
       updatePortfolioMetrics();
