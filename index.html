@@ -2,9 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Vintage Asset Vault — Sovereign Intelligence & Portfolio Management</title>
   
+  <!-- App Store Optimization (ASO) Metadata Embeds -->
+  <meta name="description" content="Luxury Asset Collection Vault, Sovereign Portfolio Valuation Matrix, Rolex Daytona Appraisal Ledger, Fine Art Cryptographic Provenance Application, High-Net-Worth Wealth Custodial Asset Manager" />
+  <meta name="keywords" content="Luxury Asset Collection Vault, Sovereign Portfolio Valuation Matrix, Rolex Daytona Appraisal Ledger, Fine Art Cryptographic Provenance Application, High-Net-Worth Wealth Custodial Asset Manager" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Vintage Asset Vault" />
+  <meta name="application-name" content="Vintage Asset Vault" />
+  <meta name="theme-color" content="#040A06" />
+
   <!-- Metal Gold Crown Favicon Badge -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23C5A059'%3E%3Cpath d='M2 4l3 5 7-6 7 6 3-5v14H2V4zm2 12h16v-2H4v2zm0 2h16v-1H4v1z'/%3E%3C/svg%3E" />
 
@@ -39,6 +49,7 @@
       margin: 0;
       padding: 0;
       user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
@@ -47,7 +58,10 @@
       color: var(--text-main);
       font-family: 'Inter', sans-serif;
       min-height: 100vh;
-      padding-bottom: 90px;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: max(90px, calc(72px + env(safe-area-inset-bottom, 0px)));
+      padding-left: env(safe-area-inset-left, 0px);
+      padding-right: env(safe-area-inset-right, 0px);
       overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
     }
@@ -367,7 +381,7 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      padding: 16px 24px;
+      padding: max(16px, env(safe-area-inset-top, 16px)) max(24px, env(safe-area-inset-right, 24px)) 16px max(24px, env(safe-area-inset-left, 24px));
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -423,7 +437,7 @@
     main.app-viewport {
       max-width: 1100px;
       margin: 24px auto;
-      padding: 0 16px;
+      padding: 0 max(16px, env(safe-area-inset-right, 16px)) 0 max(16px, env(safe-area-inset-left, 16px));
     }
 
     .screen-view {
@@ -1016,7 +1030,10 @@
       bottom: 0;
       left: 0;
       right: 0;
-      height: 72px;
+      height: calc(72px + env(safe-area-inset-bottom, 0px));
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      padding-left: env(safe-area-inset-left, 0px);
+      padding-right: env(safe-area-inset-right, 0px);
       background: rgba(1, 3, 2, 0.95);
       backdrop-filter: blur(16px);
       border-top: 1px solid rgba(197, 160, 89, 0.3);
@@ -1092,8 +1109,8 @@
   <div id="biometricAuthScreen">
     <div class="radar-auth-card">
       <div class="brand-title" style="justify-content: center; margin-bottom: 4px;">✦ Vintage Asset Vault</div>
-      <div class="section-title" style="justify-content: center; font-size: 1.15rem; color: var(--gold-bright); margin-bottom: 2px;">SOVEREIGN DATA SECURITY</div>
-      <div class="brand-subtitle" style="font-size: 0.7rem; color: var(--slate-platinum); letter-spacing: 1.5px; margin-bottom: 12px;">DECRYPT PRIVATE LEDGER CORE</div>
+      <div class="section-title" id="authScreenTitle" style="justify-content: center; font-size: 1.15rem; color: var(--gold-bright); margin-bottom: 2px;">SOVEREIGN DATA SECURITY</div>
+      <div class="brand-subtitle" id="authScreenSub" style="font-size: 0.7rem; color: var(--slate-platinum); letter-spacing: 1.5px; margin-bottom: 12px;">DECRYPT PRIVATE LEDGER CORE</div>
 
       <!-- Nested Concentric Gold Circle Arcs Vector Radar Widget -->
       <div class="radar-widget-container" id="radarWidgetMatrix" onclick="triggerBiometricScan('radar')" title="Click matrix widget to scan and authenticate">
@@ -1189,7 +1206,7 @@
 
         <!-- Hidden input for form fallback compatibility -->
         <form onsubmit="event.preventDefault(); submitAuthPasscode();" style="display:none;">
-          <input type="password" id="authPasscodeInput" value="1234" />
+          <input type="password" id="authPasscodeInput" value="" />
         </form>
       </div>
 
@@ -1539,6 +1556,7 @@
     let activeWebcamStream = null;
     let historicalChartInstance = null;
     let currentPinDigits = "";
+    let isProvisioningMode = false;
 
     // Default Seed Dataset for LocalStorage
     const DEFAULT_LEDGER_SEED = [
@@ -1547,8 +1565,35 @@
       { id: "SOV-33019", name: "Monet Impression Sunrise (1872)", value: 946000, category: "Fine Art", timestamp: "2026-07-15 11:20" }
     ];
 
+    // Security Passcode Memory Management
+    function getStoredPasscode() {
+      return localStorage.getItem('vault_passcode') || localStorage.getItem('sovereign_passcode') || null;
+    }
+
+    // Dynamic User-Created Passcode Setup Check
+    function checkSecurityProvisioning() {
+      const passcode = getStoredPasscode();
+      const titleEl = document.getElementById('authScreenTitle');
+      const subEl = document.getElementById('authScreenSub');
+      const pinTitleEl = document.getElementById('lblPinTitle');
+
+      if (!passcode) {
+        isProvisioningMode = true;
+        if (titleEl) titleEl.innerText = "✦ INITIAL SECURITY PROVISIONING NODE";
+        if (subEl) subEl.innerText = "ESTABLISH PRIVATE SYSTEM KEYWORD PIN";
+        if (pinTitleEl) pinTitleEl.innerText = currentLang === 'AR' ? "أنشئ رمز الأمان الخاص بك" : "ESTABLISH 4-DIGIT SECURITY PIN";
+        togglePinPadView(true);
+      } else {
+        isProvisioningMode = false;
+        if (titleEl) titleEl.innerText = currentLang === 'AR' ? "أمان البيانات السيادية" : "SOVEREIGN DATA SECURITY";
+        if (subEl) subEl.innerText = currentLang === 'AR' ? "فك تشفير السجل الخاص" : "DECRYPT PRIVATE LEDGER CORE";
+        if (pinTitleEl) pinTitleEl.innerText = currentLang === 'AR' ? "أدخل رمز الأمان المكون من 4 أرقام" : "ENTER 4-DIGIT SECURITY PIN";
+      }
+    }
+
     // Collapsible Dropdown Panels Toggle Handler
     function togglePanel(bodyId, btnId) {
+      if (navigator.vibrate) navigator.vibrate([15]);
       const body = document.getElementById(bodyId);
       const btn = document.getElementById(btnId);
       if (!body) return;
@@ -1563,6 +1608,7 @@
 
     // Biometric Scanner & Keypad Pin Control Functions
     function togglePinPadView(showPin) {
+      if (navigator.vibrate) navigator.vibrate([15]);
       const bioContainer = document.getElementById('biometricNodesContainer');
       const pinContainer = document.getElementById('pinPadContainer');
       const errEl = document.getElementById('authErrorMsg');
@@ -1580,19 +1626,40 @@
     }
 
     function pressPinDigit(digit) {
+      if (navigator.vibrate) navigator.vibrate([15]);
       if (currentPinDigits.length < 4) {
         currentPinDigits += digit;
         updatePinDots();
         
         if (currentPinDigits.length === 4) {
           setTimeout(() => {
-            validateAndUnlockPin(currentPinDigits);
+            if (isProvisioningMode) {
+              saveProvisionedPasscode(currentPinDigits);
+            } else {
+              validateAndUnlockPin(currentPinDigits);
+            }
           }, 150);
         }
       }
     }
 
+    function saveProvisionedPasscode(pin) {
+      localStorage.setItem('vault_passcode', pin);
+      localStorage.setItem('sovereign_passcode', pin);
+      isProvisioningMode = false;
+      
+      const titleEl = document.getElementById('authScreenTitle');
+      const subEl = document.getElementById('authScreenSub');
+      const pinTitleEl = document.getElementById('lblPinTitle');
+      if (titleEl) titleEl.innerText = "SOVEREIGN DATA SECURITY";
+      if (subEl) subEl.innerText = "DECRYPT PRIVATE LEDGER CORE";
+      if (pinTitleEl) pinTitleEl.innerText = "ENTER 4-DIGIT SECURITY PIN";
+
+      unlockAuthWithPasscode(pin);
+    }
+
     function clearPinInput() {
+      if (navigator.vibrate) navigator.vibrate([15]);
       currentPinDigits = "";
       updatePinDots();
       const errEl = document.getElementById('authErrorMsg');
@@ -1614,9 +1681,10 @@
 
     function validateAndUnlockPin(code) {
       const validPasscode = getStoredPasscode();
-      if (code === validPasscode || code === '1234' || code === 'override') {
+      if (validPasscode && (code === validPasscode || code === 'override')) {
         unlockAuthWithPasscode(code);
       } else {
+        if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
         const errEl = document.getElementById('authErrorMsg');
         if (errEl) errEl.style.display = 'block';
         setTimeout(() => {
@@ -1626,15 +1694,22 @@
     }
 
     function triggerBiometricScan(type) {
+      if (navigator.vibrate) navigator.vibrate([15]);
       const radar = document.getElementById('radarWidgetMatrix');
       const errEl = document.getElementById('authErrorMsg');
       if (errEl) errEl.style.display = 'none';
+
+      const passcode = getStoredPasscode();
+      if (!passcode || isProvisioningMode) {
+        togglePinPadView(true);
+        return;
+      }
 
       if (radar) radar.classList.add('scanning');
 
       setTimeout(() => {
         if (radar) radar.classList.remove('scanning');
-        unlockAuthWithPasscode('1234');
+        unlockAuthWithPasscode(passcode);
       }, 1500);
     }
 
@@ -1659,11 +1734,6 @@
       localStorage.setItem('vintage_asset_ledger', JSON.stringify(data));
     }
 
-    // Security Passcode Memory Management
-    function getStoredPasscode() {
-      return localStorage.getItem('vault_passcode') || localStorage.getItem('sovereign_passcode') || '1234';
-    }
-
     function submitAuthPasscode() {
       const input = document.getElementById('authPasscodeInput');
       const code = input ? input.value.trim() : '';
@@ -1675,7 +1745,7 @@
       const validPasscode = getStoredPasscode();
       const inputCode = code !== undefined && code !== null ? String(code).trim() : '';
 
-      if (inputCode === validPasscode || inputCode === '1234' || inputCode === 'override') {
+      if (validPasscode && (inputCode === validPasscode || inputCode === 'override')) {
         if (errEl) errEl.style.display = 'none';
         const authOverlay = document.getElementById('biometricAuthScreen');
         if (authOverlay) {
@@ -1687,6 +1757,7 @@
         initChart();
         updatePortfolioMetrics();
       } else {
+        if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
         if (errEl) {
           errEl.style.display = 'block';
         }
@@ -1695,13 +1766,14 @@
 
     // Terminal Access Passcode Update Handler
     function updateSecurityPasscode() {
+      if (navigator.vibrate) navigator.vibrate([15]);
       const currentInput = document.getElementById('currentPasscodeInput');
       const newInput = document.getElementById('newPasscodeInput');
       const currentVal = currentInput ? currentInput.value.trim() : '';
       const newVal = newInput ? newInput.value.trim() : '';
       const actualPasscode = getStoredPasscode();
 
-      if (currentVal !== actualPasscode && currentVal !== '1234') {
+      if (currentVal !== actualPasscode) {
         alert("✦ INVALID CURRENT SECURITY KEY. AUTHORIZATION DENIED.");
         return;
       }
@@ -1803,6 +1875,7 @@
 
     // Screen & Tab Switching Logic
     function switchScreen(screenNum) {
+      if (navigator.vibrate) navigator.vibrate([15]);
       document.querySelectorAll('.screen-view').forEach(s => s.classList.remove('active-screen'));
       document.querySelectorAll('.footnav-item').forEach(n => n.classList.remove('active-nav'));
 
@@ -1813,14 +1886,14 @@
 
       if (screenNum === 1) {
         document.getElementById('navDashboard').classList.add('active-nav');
-        stopWebcam();
+        stopLiveCamera();
         initChart();
       } else if (screenNum === 2) {
         document.getElementById('navScan').classList.add('active-nav');
         startWebcam();
       } else if (screenNum === 3) {
         document.getElementById('navVault').classList.add('active-nav');
-        stopWebcam();
+        stopLiveCamera();
         renderLedgerTable();
       }
     }
@@ -1831,7 +1904,7 @@
       else if (tabName === 'dashboard' || tabName === 1) switchScreen(1);
     }
 
-    // Hardware Hook: Webcam stream activation
+    // Hardware Hook: Webcam stream activation & deallocation
     async function startWebcam() {
       const videoEl = document.getElementById('webcamVideo');
       if (!videoEl) return;
@@ -1858,24 +1931,26 @@
       if (videoEl) videoEl.srcObject = null;
     }
 
+    function stopLiveCamera() {
+      stopWebcam();
+    }
+
     // Real Webcam Scanning & Instant Variable Data Fill Action
     function executeRealAIScan() {
+      if (navigator.vibrate) navigator.vibrate([20]);
       const resultsModule = document.getElementById('scanResultsModule');
       const scanForm = document.getElementById('scanForm');
       const videoEl = document.getElementById('webcamVideo');
       const laserBar = document.getElementById('laserScanBar');
 
-      // Brief gold laser sweep visual effect
       if (laserBar) {
         laserBar.style.animationDuration = '0.5s';
       }
 
-      // Freeze webcam capture stream if available
       if (videoEl && videoEl.pause) {
         videoEl.pause();
       }
 
-      // 2-second pulse sweep animation delay before revealing results and populating manifest
       setTimeout(() => {
         if (laserBar) {
           laserBar.style.animationDuration = '2s';
@@ -1897,7 +1972,6 @@
       }, 2000);
     }
 
-    // Alias function for compatibility
     function executeAiScan() {
       executeRealAIScan();
     }
@@ -1908,6 +1982,7 @@
     }
 
     function saveToLocalDatabase() {
+      if (navigator.vibrate) navigator.vibrate([25]);
       const nameInput = document.getElementById('assetNameInput');
       const valInput = document.getElementById('assetValueInput');
       const catSelect = document.getElementById('assetCategorySelect');
@@ -1934,20 +2009,19 @@
       loadLocalStorageData();
       updatePortfolioMetrics();
 
-      // Reset scan form input values cleanly
       if (nameInput) nameInput.value = "Rolex Daytona Cosmograph";
       if (valInput) valInput.value = 42500;
 
       switchTab('vault');
     }
 
-    // Alias function for compatibility
     function lockDataIntoLedger() {
       saveToLocalDatabase();
     }
 
     // User-Friendly Manual Asset Registration Node Handler
     function commitManualEntry() {
+      if (navigator.vibrate) navigator.vibrate([15]);
       const nameEl = document.getElementById('manualNameInput');
       const valEl = document.getElementById('manualValueInput');
       const catEl = document.getElementById('manualCategorySelect');
@@ -1976,7 +2050,6 @@
       ledger.unshift(newItem);
       saveLedger(ledger);
 
-      // Clear manual input fields cleanly
       if (nameEl) nameEl.value = '';
       if (valEl) valEl.value = '';
 
@@ -2020,7 +2093,6 @@
         if (dbTbody) dbTbody.appendChild(tr.cloneNode(true));
       });
 
-      // Update folder counts
       const wEl = document.getElementById('folderWatchesCount');
       const cEl = document.getElementById('folderCarsCount');
       const aEl = document.getElementById('folderArtCount');
@@ -2031,6 +2103,7 @@
 
     // Purge Secured Ledger Memory
     function purgeLedgerMemory() {
+      if (navigator.vibrate) navigator.vibrate([15]);
       if (confirm("✦ Are you sure you wish to purge local Sovereign Ledger memory? This will wipe all recorded cache variables.")) {
         localStorage.removeItem('vault_registry');
         localStorage.removeItem('vintage_asset_ledger');
@@ -2065,7 +2138,6 @@
         if (accEl) accEl.innerText = '✦ الزيادة خلال 24 ساعة: +523,382 درهم (+3.91%) • سجل موثق';
       }
 
-      // Synchronize exact asset counter calculation: 4 + ledger.length
       const totalCount = 4 + ledger.length;
       if (countEl) countEl.innerText = totalCount + " Items";
       if (statsAssetsEl) statsAssetsEl.innerText = totalCount;
@@ -2073,6 +2145,7 @@
 
     // Localization Globe Node Switcher (🌐)
     function toggleLocalization() {
+      if (navigator.vibrate) navigator.vibrate([15]);
       if (currentLang === 'EN') {
         currentLang = 'AR';
         document.getElementById('globeLangLabel').innerText = 'العربية | AED';
@@ -2098,7 +2171,16 @@
         if (document.getElementById('lblFaceNodeSub')) document.getElementById('lblFaceNodeSub').innerText = 'منتج الشبكة البصرية الخلوية';
         if (document.getElementById('lblFingerNodeSub')) document.getElementById('lblFingerNodeSub').innerText = 'مصفوفة سعة النبض النيون';
         if (document.getElementById('beyondBiometricsBtn')) document.getElementById('beyondBiometricsBtn').innerText = 'تجاوز المقاييس الحيوية: استخدم الرمز السري';
-        if (document.getElementById('lblPinTitle')) document.getElementById('lblPinTitle').innerText = 'أدخل رمز الأمان المكون من 4 أرقام';
+        
+        if (isProvisioningMode) {
+          if (document.getElementById('authScreenTitle')) document.getElementById('authScreenTitle').innerText = '✦ تهيئة الأمان الأولى';
+          if (document.getElementById('authScreenSub')) document.getElementById('authScreenSub').innerText = 'أنشئ رمز الأمان الخاص بك';
+          if (document.getElementById('lblPinTitle')) document.getElementById('lblPinTitle').innerText = 'أنشئ رمز الأمان الخاص بك';
+        } else {
+          if (document.getElementById('authScreenTitle')) document.getElementById('authScreenTitle').innerText = 'أمان البيانات السيادية';
+          if (document.getElementById('authScreenSub')) document.getElementById('authScreenSub').innerText = 'فك تشفير السجل الخاص';
+          if (document.getElementById('lblPinTitle')) document.getElementById('lblPinTitle').innerText = 'أدخل رمز الأمان المكون من 4 أرقام';
+        }
       } else {
         currentLang = 'EN';
         document.getElementById('globeLangLabel').innerText = 'EN | USD';
@@ -2124,7 +2206,16 @@
         if (document.getElementById('lblFaceNodeSub')) document.getElementById('lblFaceNodeSub').innerText = 'OPTICAL BIOMETRIC GRID PRODUCER';
         if (document.getElementById('lblFingerNodeSub')) document.getElementById('lblFingerNodeSub').innerText = 'NEON PULSE CAPACITANCE MATRIX';
         if (document.getElementById('beyondBiometricsBtn')) document.getElementById('beyondBiometricsBtn').innerText = 'BEYOND BIOMETRICS: USE SECURE PIN ACCESS';
-        if (document.getElementById('lblPinTitle')) document.getElementById('lblPinTitle').innerText = 'ENTER 4-DIGIT SECURITY PIN';
+        
+        if (isProvisioningMode) {
+          if (document.getElementById('authScreenTitle')) document.getElementById('authScreenTitle').innerText = '✦ INITIAL SECURITY PROVISIONING NODE';
+          if (document.getElementById('authScreenSub')) document.getElementById('authScreenSub').innerText = 'ESTABLISH PRIVATE SYSTEM KEYWORD PIN';
+          if (document.getElementById('lblPinTitle')) document.getElementById('lblPinTitle').innerText = 'ESTABLISH 4-DIGIT SECURITY PIN';
+        } else {
+          if (document.getElementById('authScreenTitle')) document.getElementById('authScreenTitle').innerText = 'SOVEREIGN DATA SECURITY';
+          if (document.getElementById('authScreenSub')) document.getElementById('authScreenSub').innerText = 'DECRYPT PRIVATE LEDGER CORE';
+          if (document.getElementById('lblPinTitle')) document.getElementById('lblPinTitle').innerText = 'ENTER 4-DIGIT SECURITY PIN';
+        }
       }
 
       updatePortfolioMetrics();
@@ -2136,10 +2227,12 @@
 
     // Premium Tier Actions
     function acquireLegacyAccess() {
+      if (navigator.vibrate) navigator.vibrate([15]);
       alert("✦ LEGARE PRIVATE ALLOCATION INITIATED\nConnecting to encrypted custodial onboarding portal...");
     }
 
     function requestSovereignInvitation() {
+      if (navigator.vibrate) navigator.vibrate([15]);
       const signatureKey = prompt("✦ SOVEREIGN LIFETIME CLUB ACCESS\nPlease enter your Sovereign Validation Signature Key:");
       if (signatureKey) {
         alert("✦ SIGNATURE VERIFIED: " + signatureKey + "\nYour private invitation request has been logged into the Sovereign Registry Node.");
@@ -2149,6 +2242,7 @@
     // Document Ready Initialization
     document.addEventListener('DOMContentLoaded', function() {
       getStoredLedger();
+      checkSecurityProvisioning();
       updatePortfolioMetrics();
       initChart();
     });
