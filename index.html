@@ -1675,7 +1675,7 @@
       const validPasscode = getStoredPasscode();
       const inputCode = code !== undefined && code !== null ? String(code).trim() : '';
 
-      if (inputCode === validPasscode || inputCode === '1234' || inputCode === 'override' || !inputCode) {
+      if (inputCode === validPasscode || inputCode === '1234' || inputCode === 'override') {
         if (errEl) errEl.style.display = 'none';
         const authOverlay = document.getElementById('biometricAuthScreen');
         if (authOverlay) {
@@ -1868,9 +1868,6 @@
       // Brief gold laser sweep visual effect
       if (laserBar) {
         laserBar.style.animationDuration = '0.5s';
-        setTimeout(() => {
-          laserBar.style.animationDuration = '2s';
-        }, 2000);
       }
 
       // Freeze webcam capture stream if available
@@ -1878,19 +1875,26 @@
         videoEl.pause();
       }
 
-      // Instantly toggle scanForm / scanResultsModule to display block
-      if (resultsModule) resultsModule.style.display = 'block';
-      if (scanForm) scanForm.style.display = 'block';
+      // 2-second pulse sweep animation delay before revealing results and populating manifest
+      setTimeout(() => {
+        if (laserBar) {
+          laserBar.style.animationDuration = '2s';
+        }
 
-      // Auto-populate target input parameter fields
-      const nameInput = document.getElementById('assetNameInput');
-      const valInput = document.getElementById('assetValueInput');
-      if (nameInput) nameInput.value = "Rolex Daytona Cosmograph";
-      if (valInput) valInput.value = 42500;
+        if (resultsModule) resultsModule.style.display = 'block';
+        if (scanForm) scanForm.style.display = 'block';
 
-      if (resultsModule) {
-        resultsModule.scrollIntoView({ behavior: 'smooth' });
-      }
+        const nameInput = document.getElementById('assetNameInput');
+        const capturedName = document.getElementById('capturedName');
+        const valInput = document.getElementById('assetValueInput');
+        if (nameInput) nameInput.value = "Rolex Daytona Cosmograph";
+        if (capturedName) capturedName.value = "Rolex Daytona Cosmograph";
+        if (valInput) valInput.value = 42500;
+
+        if (resultsModule) {
+          resultsModule.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 2000);
     }
 
     // Alias function for compatibility
@@ -1929,6 +1933,11 @@
 
       loadLocalStorageData();
       updatePortfolioMetrics();
+
+      // Reset scan form input values cleanly
+      if (nameInput) nameInput.value = "Rolex Daytona Cosmograph";
+      if (valInput) valInput.value = 42500;
+
       switchTab('vault');
     }
 
@@ -1967,12 +1976,12 @@
       ledger.unshift(newItem);
       saveLedger(ledger);
 
-      // Clear manual input fields
+      // Clear manual input fields cleanly
       if (nameEl) nameEl.value = '';
       if (valEl) valEl.value = '';
 
+      loadLocalStorageData();
       updatePortfolioMetrics();
-      renderLedgerTable();
     }
 
     // Render Ledger Table & Folder Benchmarks
